@@ -23,6 +23,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE = 1;
 
+    private TrackerService mTrackerService;
+
     public FloatWindowManager mTrackerWindowManager;
 
     private TextView mStatusTv;
@@ -40,8 +42,6 @@ public class MainActivity extends AppCompatActivity {
         initTrackerWindowManager();
 
         mStatusTv = findViewById(R.id.tv_status);
-        setStatus();
-
         mStatusTv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -72,11 +72,11 @@ public class MainActivity extends AppCompatActivity {
         if (mStatusTv == null) {
             return;
         }
-        if (AccessibilityUtils.checkAccessibility(MainActivity.this)) {
+        if (AccessibilityUtils.checkAccessibility(MainActivity.this, false)) {
             mStatusTv.setText("服务已开启");
             mStatusTv.setEnabled(false);
         } else {
-            mStatusTv.setText("服务未开启");
+            mStatusTv.setText("点我开启服务");
             mStatusTv.setEnabled(true);
         }
     }
@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
         if (mAccessibilityStart) {
             return;
         }
-        if (AccessibilityUtils.checkAccessibility(MainActivity.this)) {
+        if (AccessibilityUtils.checkAccessibility(MainActivity.this, true)) {
             startService(new Intent(MainActivity.this, TrackerService.class)
                     .putExtra(TrackerService.COMMAND, TrackerService.COMMAND_OPEN)
             );

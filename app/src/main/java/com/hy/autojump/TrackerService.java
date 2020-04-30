@@ -2,6 +2,9 @@ package com.hy.autojump;
 
 import android.accessibilityservice.AccessibilityService;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
@@ -10,6 +13,7 @@ import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.hy.autojump.event.ActivityChangedEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
@@ -28,6 +32,11 @@ public class TrackerService extends AccessibilityService {
     public static final String COMMAND_CLOSE = "COMMAND_CLOSE";
 
     public static final String JUMP = "跳过";
+
+    /**
+     * 包名白名单--过滤不检测
+     */
+    private List<String> mPackageWhiteList = new ArrayList<>();
 
     /**
      * 包名
@@ -82,6 +91,9 @@ public class TrackerService extends AccessibilityService {
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
+        if (!mPackageWhiteList.contains(getPackageName())) {
+            mPackageWhiteList.add(getPackageName());
+        }
 
 //        AccessibilityServiceInfo accessibilityServiceInfo = new AccessibilityServiceInfo();
 //        accessibilityServiceInfo.eventTypes = AccessibilityEvent.TYPES_ALL_MASK;
@@ -96,11 +108,13 @@ public class TrackerService extends AccessibilityService {
         if (!TextUtils.isEmpty(event.getPackageName())) {
             mPackageName = event.getPackageName().toString();
         }
-        // Log.d(TAG, "onAccessibilityEvent:getPackageName:" + mPackageName);
 
         mOpenNewApp = !mPackageNameTemp.equals(mPackageName);
         if (mOpenNewApp) {
             mAutoJump = false;
+            if (BuildConfig.DEBUG) {
+                Log.i(TAG, "检测APP-->>打开了新的App:" + mPackageName);
+            }
         }
 
         if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
@@ -111,7 +125,6 @@ public class TrackerService extends AccessibilityService {
             if (!mOpenNewApp) {
                 mOpenNewClass = !mClassNameTemp.equals(mClassName);
             }
-            // Log.d(TAG, "onAccessibilityEvent:getClassName:" + mClassName);
 
             if (!TextUtils.isEmpty(mPackageName) && !TextUtils.isEmpty(mClassName)) {
                 EventBus.getDefault().post(new ActivityChangedEvent(
@@ -126,30 +139,48 @@ public class TrackerService extends AccessibilityService {
 
         // checkEvent(event);
 
-        AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
-        checkAccessibilityNodeInfoRecycle(nodeInfo);
+        // 非系统app
+        if (!isSystemApp(mPackageName)) {
+            // 非白名单app
+            if (!mPackageWhiteList.contains(mPackageName)) {
+                // 开始检测
+                AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
+                checkAccessibilityNodeInfoRecycle(nodeInfo);
+
+                if (mOpenNewApp) {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!mAutoJump) {
+                                mAutoJump = true;
+                                if (BuildConfig.DEBUG) {
+                                    Log.i(TAG, "检测APP-->>超时，不再检测");
+                                }
+                            }
+                        }
+                    }, 10000);
+                }
+            } else {
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "检测APP-->>白名单APP:" + mPackageName);
+                }
+            }
+        } else {
+            if (BuildConfig.DEBUG) {
+                Log.i(TAG, "检测APP-->>系统APP:" + mPackageName);
+            }
+        }
 
         if (!mPackageNameTemp.equals(mPackageName)) {
             mPackageNameTemp = mPackageName;
         }
-
-        if (mOpenNewApp) {
-            // 新打开的app，5s后不再检测
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mAutoJump = true;
-                }
-            }, 5000);
-        }
     }
 
     /**
-     * checkAccessibilityNodeInfo
+     * 循环检测
      */
     public void checkAccessibilityNodeInfoRecycle(AccessibilityNodeInfo nodeInfo) {
         if (mAutoJump && !mOpenNewApp) {
-            // Log.i(TAG, "notice:检测APP-->>该APP已检测且跳过，不再检测");
             return;
         }
         if (nodeInfo == null) {
@@ -162,7 +193,9 @@ public class TrackerService extends AccessibilityService {
         int size = nodeInfo.getChildCount();
         for (int i = 0; i < size; i++) {
             if (mAutoJump) {
-                // Log.i(TAG, "notice:检测APP-->>该APP已跳过，打断循环检测");
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "检测APP-->>该APP已跳过，打断循环检测");
+                }
                 break;
             }
             AccessibilityNodeInfo childNodeInfo = nodeInfo.getChild(i);
@@ -177,19 +210,23 @@ public class TrackerService extends AccessibilityService {
             if (!TextUtils.isEmpty(childNodeInfo.getText())) {
                 textContent = childNodeInfo.getText().toString();
             }
-//            Log.i(TAG, "NodeInfo: " + i + " "
-//                    + "className:" + className + " : "
-//                    + childNodeInfo.getContentDescription() + " : "
-//                    + textContent);
+            if (BuildConfig.DEBUG) {
+                Log.i(TAG, "NodeInfo: " + i + " "
+                        + "className:" + className + " : "
+                        + childNodeInfo.getContentDescription() + " : "
+                        + textContent);
+            }
 
-            if (!TextUtils.isEmpty(textContent) && textContent.equals(JUMP)) {
-                if (childNodeInfo.isEnabled()) {
-                    // 点击跳过
-                    childNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                    mAutoJump = true;
-                    Log.i(TAG, "notice:检测APP-->>自动跳过!!!!");
-                    break;
+            if (!TextUtils.isEmpty(textContent)
+                    && !"自动跳过".equals(textContent)
+                    && textContent.contains(JUMP)) {
+                // 点击跳过
+                childNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                mAutoJump = true;
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "检测APP-->>自动跳过!!!!");
                 }
+                break;
             } else {
                 checkAccessibilityNodeInfoRecycle(childNodeInfo);
             }
@@ -273,6 +310,26 @@ public class TrackerService extends AccessibilityService {
             default:
                 break;
         }
+    }
+
+    /**
+     * 判断是否是系统app
+     */
+    public boolean isSystemApp(String pkgName) {
+        boolean isSystemApp = false;
+        PackageInfo pi = null;
+        try {
+            PackageManager pm = getApplicationContext().getPackageManager();
+            pi = pm.getPackageInfo(pkgName, 0);
+        } catch (Throwable t) {
+            Log.e(TAG, t.getMessage(), t);
+        }
+        if (pi != null) {
+            boolean isSysApp = (pi.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 1;
+            boolean isSysUpd = (pi.applicationInfo.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) == 1;
+            isSystemApp = isSysApp || isSysUpd;
+        }
+        return isSystemApp;
     }
 
     /**

@@ -12,14 +12,21 @@ import android.widget.Toast;
  **/
 public class AccessibilityUtils {
 
-    public static boolean checkAccessibility(Context context) {
+    public static boolean checkAccessibility(Context context, boolean goSetting) {
+        if (context == null) {
+            return false;
+        }
         // 判断辅助功能是否开启
         if (!AccessibilityUtils.isAccessibilitySettingsOn(context)) {
             // 引导至辅助功能设置页面
-            context.startActivity(
-                    new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-            );
-            Toast.makeText(context, "请打开辅助功能", Toast.LENGTH_SHORT).show();
+            if (goSetting) {
+                context.startActivity(
+                        new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                );
+            }
+            Toast.makeText(context, "请找到-->服务-->"
+                    + context.getString(R.string.app_name)
+                    + "-->打开开关", Toast.LENGTH_LONG).show();
             return false;
         }
         return true;
