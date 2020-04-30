@@ -2,11 +2,11 @@ package com.hy.autojump;
 
 import android.accessibilityservice.AccessibilityService;
 import android.content.Intent;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
-import android.widget.Toast;
 
 import com.hy.autojump.event.ActivityChangedEvent;
 
@@ -41,8 +41,18 @@ public class TrackerService extends AccessibilityService {
     private String mClassName = "";
     private String mClassNameTemp = "";
 
+    /**
+     * 打开/切换到新的app
+     */
     private boolean mOpenNewApp;
+    /**
+     * 当前app启动一个新的页面
+     */
     private boolean mOpenNewClass;
+
+    /**
+     * 是否已经自动跳过
+     */
     private boolean mAutoJump;
 
     @Override
@@ -86,9 +96,12 @@ public class TrackerService extends AccessibilityService {
         if (!TextUtils.isEmpty(event.getPackageName())) {
             mPackageName = event.getPackageName().toString();
         }
-        Log.d(TAG, "onAccessibilityEvent:getPackageName:" + mPackageName);
+        // Log.d(TAG, "onAccessibilityEvent:getPackageName:" + mPackageName);
 
         mOpenNewApp = !mPackageNameTemp.equals(mPackageName);
+        if (mOpenNewApp) {
+            mAutoJump = false;
+        }
 
         if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
 
@@ -98,12 +111,16 @@ public class TrackerService extends AccessibilityService {
             if (!mOpenNewApp) {
                 mOpenNewClass = !mClassNameTemp.equals(mClassName);
             }
-            Log.d(TAG, "onAccessibilityEvent:getClassName:" + mClassName);
+            // Log.d(TAG, "onAccessibilityEvent:getClassName:" + mClassName);
 
             if (!TextUtils.isEmpty(mPackageName) && !TextUtils.isEmpty(mClassName)) {
                 EventBus.getDefault().post(new ActivityChangedEvent(
                         mPackageName, mClassName
                 ));
+            }
+
+            if (!mClassNameTemp.equals(mClassName)) {
+                mClassNameTemp = mClassName;
             }
         }
 
@@ -115,19 +132,68 @@ public class TrackerService extends AccessibilityService {
         if (!mPackageNameTemp.equals(mPackageName)) {
             mPackageNameTemp = mPackageName;
         }
-        if (!mClassNameTemp.equals(mClassName)) {
-            mClassNameTemp = mClassName;
+
+        if (mOpenNewApp) {
+            // 新打开的app，5s后不再检测
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mAutoJump = true;
+                }
+            }, 5000);
+        }
+    }
+
+    /**
+     * checkAccessibilityNodeInfo
+     */
+    public void checkAccessibilityNodeInfoRecycle(AccessibilityNodeInfo nodeInfo) {
+        if (mAutoJump && !mOpenNewApp) {
+            // Log.i(TAG, "notice:检测APP-->>该APP已检测且跳过，不再检测");
+            return;
+        }
+        if (nodeInfo == null) {
+            return;
+        }
+        if (nodeInfo.getChildCount() == 0) {
+            return;
         }
 
-//        if (mOpenNewApp) {
-//            // 新打开的app，5s后不再检测
-//            new Handler().postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//                    mAutoJump = true;
-//                }
-//            }, 5000);
-//        }
+        int size = nodeInfo.getChildCount();
+        for (int i = 0; i < size; i++) {
+            if (mAutoJump) {
+                // Log.i(TAG, "notice:检测APP-->>该APP已跳过，打断循环检测");
+                break;
+            }
+            AccessibilityNodeInfo childNodeInfo = nodeInfo.getChild(i);
+            if (childNodeInfo == null) {
+                continue;
+            }
+            String className = "";
+            if (!TextUtils.isEmpty(childNodeInfo.getClassName())) {
+                className = childNodeInfo.getClassName().toString();
+            }
+            String textContent = "";
+            if (!TextUtils.isEmpty(childNodeInfo.getText())) {
+                textContent = childNodeInfo.getText().toString();
+            }
+//            Log.i(TAG, "NodeInfo: " + i + " "
+//                    + "className:" + className + " : "
+//                    + childNodeInfo.getContentDescription() + " : "
+//                    + textContent);
+
+            if (!TextUtils.isEmpty(textContent) && textContent.equals(JUMP)) {
+                if (childNodeInfo.isEnabled()) {
+                    // 点击跳过
+                    childNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                    mAutoJump = true;
+                    Log.i(TAG, "notice:检测APP-->>自动跳过!!!!");
+                    break;
+                }
+            } else {
+                checkAccessibilityNodeInfoRecycle(childNodeInfo);
+            }
+        }
     }
 
     /**
@@ -206,55 +272,6 @@ public class TrackerService extends AccessibilityService {
                 break;
             default:
                 break;
-        }
-    }
-
-    /**
-     * checkAccessibilityNodeInfo
-     */
-    public void checkAccessibilityNodeInfoRecycle(AccessibilityNodeInfo nodeInfo) {
-        if (mAutoJump && !mOpenNewApp) {
-            Log.i(TAG, "notice:检测APP-->>该APP已检测且跳过，不再检测");
-            return;
-        } else {
-            mAutoJump = false;
-        }
-        if (nodeInfo == null) {
-            return;
-        }
-        if (nodeInfo.getChildCount() == 0) {
-            return;
-        }
-
-        int size = nodeInfo.getChildCount();
-        for (int i = 0; i < size; i++) {
-            if (mAutoJump) {
-                Log.i(TAG, "notice:检测APP-->>该APP已跳过，打断循环检测");
-                break;
-            }
-            AccessibilityNodeInfo childInfo = nodeInfo.getChild(i);
-            if (childInfo == null) {
-                continue;
-            }
-            String className = childInfo.getClassName().toString();
-            String textContent = "";
-            if (!TextUtils.isEmpty(childInfo.getText())) {
-                textContent = childInfo.getText().toString();
-            }
-            Log.i(TAG, "NodeInfo: " + i + " "
-                    + "className:" + className + " : "
-                    + childInfo.getContentDescription() + " : "
-                    + textContent);
-
-            if (!TextUtils.isEmpty(textContent) && textContent.equals(JUMP)) {
-                if (childInfo.isEnabled()) {
-                    // 点击跳过
-                    childInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                    mAutoJump = true;
-                    Toast.makeText(this, "自动跳过", Toast.LENGTH_SHORT).show();
-                }
-                break;
-            }
         }
     }
 
