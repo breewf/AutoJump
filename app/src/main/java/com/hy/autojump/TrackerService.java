@@ -37,7 +37,12 @@ public class TrackerService extends AccessibilityService {
     public static final String COMMAND_OPEN = "COMMAND_OPEN";
     public static final String COMMAND_CLOSE = "COMMAND_CLOSE";
 
+    public static final int IGNORE_TIME = 5000;
+
     public static final String JUMP = "跳过";
+
+    public static final String WEI_XIN__PACKAGE = "com.tencent.mm";
+    public static final String QQ__PACKAGE = "com.tencent.mobileqq";
 
     public static final String A_LI_PAY_PACKAGE = "com.eg.android.AlipayGphone";
     public static final String A_LI_PAY_ANT_FOREST_CLASS = "com.alipay.mobile.nebulax.integration.mpaas.activity.NebulaActivity";
@@ -102,18 +107,31 @@ public class TrackerService extends AccessibilityService {
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
-        if (!mPackageWhiteList.contains(getPackageName())) {
-            mPackageWhiteList.add(getPackageName());
-        }
-        if (!mPackageWhiteList.contains(A_LI_PAY_PACKAGE)) {
-            mPackageWhiteList.add(A_LI_PAY_PACKAGE);
-        }
+        addWhiteList();
 
 //        AccessibilityServiceInfo accessibilityServiceInfo = new AccessibilityServiceInfo();
 //        accessibilityServiceInfo.eventTypes = AccessibilityEvent.TYPES_ALL_MASK;
 //        accessibilityServiceInfo.feedbackType = AccessibilityServiceInfo.FEEDBACK_SPOKEN;
 //        accessibilityServiceInfo.notificationTimeout = 1000;
 //        setServiceInfo(accessibilityServiceInfo);
+    }
+
+    private void addWhiteList() {
+        if (mPackageWhiteList == null) {
+            return;
+        }
+        if (!mPackageWhiteList.contains(getPackageName())) {
+            mPackageWhiteList.add(getPackageName());
+        }
+        if (!mPackageWhiteList.contains(WEI_XIN__PACKAGE)) {
+            mPackageWhiteList.add(WEI_XIN__PACKAGE);
+        }
+        if (!mPackageWhiteList.contains(QQ__PACKAGE)) {
+            mPackageWhiteList.add(QQ__PACKAGE);
+        }
+        if (!mPackageWhiteList.contains(A_LI_PAY_PACKAGE)) {
+            mPackageWhiteList.add(A_LI_PAY_PACKAGE);
+        }
     }
 
     @Override
@@ -265,7 +283,7 @@ public class TrackerService extends AccessibilityService {
                                 }
                             }
                         }
-                    }, 10000);
+                    }, IGNORE_TIME);
                 }
             } else {
                 if (BuildConfig.DEBUG) {
