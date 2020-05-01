@@ -289,11 +289,13 @@ public class TrackerService extends AccessibilityService {
                     }, IGNORE_TIME);
                 }
             } else {
+                mAutoJump = true;
                 if (BuildConfig.DEBUG) {
                     Log.i(TAG, "检测APP-->>白名单APP:" + mPackageName);
                 }
             }
         } else {
+            mAutoJump = true;
             if (BuildConfig.DEBUG) {
                 Log.i(TAG, "检测APP-->>系统APP:" + mPackageName);
             }
