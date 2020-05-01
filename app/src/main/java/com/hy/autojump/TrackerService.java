@@ -14,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import com.hy.autojump.common.Global;
 import com.hy.autojump.event.ActivityChangedEvent;
 
 import java.io.IOException;
@@ -38,6 +39,10 @@ public class TrackerService extends AccessibilityService {
 
     public static final String JUMP = "跳过";
 
+    public static final String A_LI_PAY_PACKAGE = "com.eg.android.AlipayGphone";
+    public static final String A_LI_PAY_ANT_FOREST_CLASS = "com.alipay.mobile.nebulax.integration.mpaas.activity.NebulaActivity";
+    public static final String ANT_FOREST_TITLE = "蚂蚁森林";
+
     /**
      * 包名白名单--过滤不检测
      */
@@ -53,20 +58,22 @@ public class TrackerService extends AccessibilityService {
      * 类名
      */
     private String mClassName = "";
+    private String mClassNameTemp = "";
 
     /**
      * 打开/切换到新的app
      */
     private boolean mOpenNewApp;
-    /**
-     * 当前app启动一个新的页面
-     */
-    private boolean mOpenNewClass;
 
     /**
      * 是否已经自动跳过
      */
     private boolean mAutoJump;
+
+    /**
+     * 是否是蚂蚁森林页面
+     */
+    private boolean mAntForest;
 
     @Override
     public void onCreate() {
@@ -98,6 +105,9 @@ public class TrackerService extends AccessibilityService {
         if (!mPackageWhiteList.contains(getPackageName())) {
             mPackageWhiteList.add(getPackageName());
         }
+        if (!mPackageWhiteList.contains(A_LI_PAY_PACKAGE)) {
+            mPackageWhiteList.add(A_LI_PAY_PACKAGE);
+        }
 
 //        AccessibilityServiceInfo accessibilityServiceInfo = new AccessibilityServiceInfo();
 //        accessibilityServiceInfo.eventTypes = AccessibilityEvent.TYPES_ALL_MASK;
@@ -116,6 +126,7 @@ public class TrackerService extends AccessibilityService {
         mOpenNewApp = !mPackageNameTemp.equals(mPackageName);
         if (mOpenNewApp) {
             mAutoJump = false;
+            mAntForest = false;
             if (BuildConfig.DEBUG) {
                 Log.i(TAG, "检测APP-->>打开了新的App:" + mPackageName);
             }
@@ -127,10 +138,12 @@ public class TrackerService extends AccessibilityService {
                 mClassName = event.getClassName().toString();
             }
 
-            if (!TextUtils.isEmpty(mPackageName) && !TextUtils.isEmpty(mClassName)) {
-                EventBus.getDefault().post(new ActivityChangedEvent(
-                        mPackageName, mClassName
-                ));
+            if (Global.SEE_ACTIVITY) {
+                if (!TextUtils.isEmpty(mPackageName) && !TextUtils.isEmpty(mClassName)) {
+                    EventBus.getDefault().post(new ActivityChangedEvent(
+                            mPackageName, mClassName
+                    ));
+                }
             }
         }
 
@@ -138,7 +151,7 @@ public class TrackerService extends AccessibilityService {
 
         functionAutoJump();
 
-        functionAutoGetAntPower();
+        // functionAutoGetAntPower();
 
         if (!mPackageNameTemp.equals(mPackageName)) {
             mPackageNameTemp = mPackageName;
@@ -149,20 +162,97 @@ public class TrackerService extends AccessibilityService {
      * 功能--蚂蚁森林，自动收取能量
      */
     private void functionAutoGetAntPower() {
+        if (!Global.AUTO_GET_POWER) {
+            return;
+        }
+        if (!mPackageName.equals(A_LI_PAY_PACKAGE)) {
+            // 不是支付宝
+            return;
+        }
+        if (!mClassName.contains(A_LI_PAY_ANT_FOREST_CLASS)) {
+            // 不是蚂蚁森林所在页面
+            mAntForest = false;
+            return;
+        }
 
+        if (BuildConfig.DEBUG) {
+            Log.i(TAG, "蚂蚁森林-->>发现蚂蚁森林页面!!!!");
+        }
+
+        // 开始检测
+        AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
+        checkAccessibilityNodeInfoForGetPower(nodeInfo);
+    }
+
+    /**
+     * 蚂蚁森林收能量
+     */
+    public void checkAccessibilityNodeInfoForGetPower(AccessibilityNodeInfo nodeInfo) {
+        if (nodeInfo == null) {
+            return;
+        }
+        if (nodeInfo.getChildCount() == 0) {
+            return;
+        }
+
+        int size = nodeInfo.getChildCount();
+        for (int i = 0; i < size; i++) {
+            AccessibilityNodeInfo childNodeInfo = nodeInfo.getChild(i);
+            if (childNodeInfo == null) {
+                continue;
+            }
+            String className = "";
+            if (!TextUtils.isEmpty(childNodeInfo.getClassName())) {
+                className = childNodeInfo.getClassName().toString();
+            }
+            String textContent = "";
+            if (!TextUtils.isEmpty(childNodeInfo.getText())) {
+                textContent = childNodeInfo.getText().toString();
+            }
+            if (BuildConfig.DEBUG) {
+                Log.i(TAG, "NodeInfo: " + i + " "
+                        + "className:" + className + " : "
+                        + childNodeInfo.getContentDescription() + " : "
+                        + textContent);
+            }
+
+            if (!TextUtils.isEmpty(textContent)
+                    && textContent.contains(ANT_FOREST_TITLE)) {
+                mAntForest = true;
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "蚂蚁森林-->>发现蚂蚁森林!!!!");
+                }
+            }
+
+            if (mAntForest && !TextUtils.isEmpty(textContent)
+                    && !textContent.contains("收取")
+                    && !textContent.contains("获得")
+                    && (textContent.contains("g") || textContent.contains("绿色能量"))) {
+                // 点击收取能量
+                childNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "蚂蚁森林-->>收取一个能量-->>" + textContent);
+                }
+            }
+
+            checkAccessibilityNodeInfoForGetPower(childNodeInfo);
+        }
     }
 
     /**
      * 功能--自动跳过
      */
     private void functionAutoJump() {
+        if (!Global.AUTO_JUMP) {
+            return;
+        }
         // 非系统app
         if (!isSystemApp(mPackageName)) {
             // 非白名单app
             if (!mPackageWhiteList.contains(mPackageName)) {
                 // 开始检测
                 AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
-                checkAccessibilityNodeInfoRecycle(nodeInfo);
+                checkAccessibilityNodeInfoForJump(nodeInfo);
 
                 if (mOpenNewApp) {
                     new Handler().postDelayed(new Runnable() {
@@ -190,9 +280,9 @@ public class TrackerService extends AccessibilityService {
     }
 
     /**
-     * 循环检测
+     * 自动跳过检测
      */
-    public void checkAccessibilityNodeInfoRecycle(AccessibilityNodeInfo nodeInfo) {
+    public void checkAccessibilityNodeInfoForJump(AccessibilityNodeInfo nodeInfo) {
         if (mAutoJump && !mOpenNewApp) {
             return;
         }
@@ -254,7 +344,7 @@ public class TrackerService extends AccessibilityService {
 
                 break;
             } else {
-                checkAccessibilityNodeInfoRecycle(childNodeInfo);
+                checkAccessibilityNodeInfoForJump(childNodeInfo);
             }
         }
     }

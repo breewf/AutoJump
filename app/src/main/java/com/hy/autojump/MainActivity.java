@@ -9,6 +9,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.hy.autojump.common.Global;
+import com.hy.autojump.common.PreferManager;
 import com.hy.autojump.event.Actions;
 import com.hy.autojump.event.Event;
 
@@ -31,9 +33,9 @@ public class MainActivity extends AppCompatActivity {
 
     private Switch mSwitch1;
     private Switch mSwitch2;
+    private Switch mSwitch3;
+    private Switch mSwitch4;
     private Switch mSwitchOpenFloat;
-
-    private boolean mFloatViewAdd;
 
     private boolean mAccessibilityStart;
 
@@ -48,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
         mServiceStatusTv = findViewById(R.id.tv_service_status);
         mSwitch1 = findViewById(R.id.switch1);
         mSwitch2 = findViewById(R.id.switch2);
+        mSwitch3 = findViewById(R.id.switch3);
+        mSwitch4 = findViewById(R.id.switch4);
         mSwitchOpenFloat = findViewById(R.id.btn_open_float);
 
         initSwitchStatus();
@@ -56,7 +60,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initSwitchStatus() {
-
+        mSwitch2.setChecked(Global.AUTO_JUMP = PreferManager.getAutoJumpConfig());
+        mSwitch3.setChecked(Global.AUTO_GET_POWER = PreferManager.getAutoGetPowerConfig());
+        mSwitch4.setChecked(Global.APP_TASK_HIDE = PreferManager.getAppTaskHideConfig());
     }
 
     private void initClickListener() {
@@ -70,14 +76,46 @@ public class MainActivity extends AppCompatActivity {
         mSwitch2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (PreferManager.getAutoJumpConfig()) {
+                    PreferManager.setAutoJumpConfig(false);
+                    Global.AUTO_JUMP = false;
+                } else {
+                    PreferManager.setAutoJumpConfig(true);
+                    Global.AUTO_JUMP = true;
+                }
+            }
+        });
 
+        mSwitch3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (PreferManager.getAutoGetPowerConfig()) {
+                    PreferManager.setAutoGetPowerConfig(false);
+                    Global.AUTO_GET_POWER = false;
+                } else {
+                    PreferManager.setAutoGetPowerConfig(true);
+                    Global.AUTO_GET_POWER = true;
+                }
+            }
+        });
+
+        mSwitch4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (PreferManager.getAppTaskHideConfig()) {
+                    PreferManager.setAppTaskHideConfig(false);
+                    Global.APP_TASK_HIDE = false;
+                } else {
+                    PreferManager.setAppTaskHideConfig(true);
+                    Global.APP_TASK_HIDE = true;
+                }
             }
         });
 
         mSwitchOpenFloat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mFloatViewAdd) {
+                if (Global.SEE_ACTIVITY) {
                     removeFloatView();
                     return;
                 }
@@ -153,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
             if (mSwitchOpenFloat != null) {
                 mSwitchOpenFloat.setChecked(true);
             }
-            mFloatViewAdd = true;
+            Global.SEE_ACTIVITY = true;
         }
     }
 
@@ -166,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
             if (mSwitchOpenFloat != null) {
                 mSwitchOpenFloat.setChecked(false);
             }
-            mFloatViewAdd = false;
+            Global.SEE_ACTIVITY = false;
         }
     }
 
