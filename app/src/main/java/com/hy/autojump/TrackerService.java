@@ -264,6 +264,9 @@ public class TrackerService extends AccessibilityService {
         if (!Global.AUTO_JUMP) {
             return;
         }
+        if (mAutoJump) {
+            return;
+        }
         // 非系统app
         if (!isSystemApp(mPackageName)) {
             // 非白名单app
@@ -301,7 +304,7 @@ public class TrackerService extends AccessibilityService {
      * 自动跳过检测
      */
     public void checkAccessibilityNodeInfoForJump(AccessibilityNodeInfo nodeInfo) {
-        if (mAutoJump && !mOpenNewApp) {
+        if (mAutoJump) {
             return;
         }
         if (nodeInfo == null) {
