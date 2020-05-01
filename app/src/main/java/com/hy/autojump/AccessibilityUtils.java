@@ -23,10 +23,10 @@ public class AccessibilityUtils {
                 context.startActivity(
                         new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
                 );
+                Toast.makeText(context, "请找到-->服务(无障碍)-->"
+                        + context.getString(R.string.app_name)
+                        + "-->打开开关", Toast.LENGTH_LONG).show();
             }
-            Toast.makeText(context, "请找到-->服务-->"
-                    + context.getString(R.string.app_name)
-                    + "-->打开开关", Toast.LENGTH_LONG).show();
             return false;
         }
         return true;

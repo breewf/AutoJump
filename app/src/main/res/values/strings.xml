@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">自动跳过</string>
+    <string name="app_name">辅助点击</string>
 
-    <string name="accessibility_service_description">开启此功能, 以帮助您实现自动跳过</string>
+    <string name="accessibility_service_description">开启此功能, 以帮助您实现自动跳过等功能</string>
     <string name="accessibility_service_description_activity">开启此功能, 以获取栈顶Activity</string>
 
 </resources>

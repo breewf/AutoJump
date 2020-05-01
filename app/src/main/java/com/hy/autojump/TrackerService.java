@@ -1,18 +1,23 @@
 package com.hy.autojump;
 
 import android.accessibilityservice.AccessibilityService;
+import android.app.Instrumentation;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.hy.autojump.event.ActivityChangedEvent;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +53,6 @@ public class TrackerService extends AccessibilityService {
      * 类名
      */
     private String mClassName = "";
-    private String mClassNameTemp = "";
 
     /**
      * 打开/切换到新的app
@@ -122,23 +126,36 @@ public class TrackerService extends AccessibilityService {
             if (!TextUtils.isEmpty(event.getClassName())) {
                 mClassName = event.getClassName().toString();
             }
-            if (!mOpenNewApp) {
-                mOpenNewClass = !mClassNameTemp.equals(mClassName);
-            }
 
             if (!TextUtils.isEmpty(mPackageName) && !TextUtils.isEmpty(mClassName)) {
                 EventBus.getDefault().post(new ActivityChangedEvent(
                         mPackageName, mClassName
                 ));
             }
-
-            if (!mClassNameTemp.equals(mClassName)) {
-                mClassNameTemp = mClassName;
-            }
         }
 
         // checkEvent(event);
 
+        functionAutoJump();
+
+        functionAutoGetAntPower();
+
+        if (!mPackageNameTemp.equals(mPackageName)) {
+            mPackageNameTemp = mPackageName;
+        }
+    }
+
+    /**
+     * 功能--蚂蚁森林，自动收取能量
+     */
+    private void functionAutoGetAntPower() {
+
+    }
+
+    /**
+     * 功能--自动跳过
+     */
+    private void functionAutoJump() {
         // 非系统app
         if (!isSystemApp(mPackageName)) {
             // 非白名单app
@@ -169,10 +186,6 @@ public class TrackerService extends AccessibilityService {
             if (BuildConfig.DEBUG) {
                 Log.i(TAG, "检测APP-->>系统APP:" + mPackageName);
             }
-        }
-
-        if (!mPackageNameTemp.equals(mPackageName)) {
-            mPackageNameTemp = mPackageName;
         }
     }
 
@@ -218,7 +231,6 @@ public class TrackerService extends AccessibilityService {
             }
 
             if (!TextUtils.isEmpty(textContent)
-                    && !"自动跳过".equals(textContent)
                     && textContent.contains(JUMP)) {
                 // 点击跳过
                 childNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
@@ -226,6 +238,20 @@ public class TrackerService extends AccessibilityService {
                 if (BuildConfig.DEBUG) {
                     Log.i(TAG, "检测APP-->>自动跳过!!!!");
                 }
+
+                AccessibilityNodeInfo parentNodeInfo = childNodeInfo.getParent();
+                if (parentNodeInfo != null) {
+                    parentNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                    if (BuildConfig.DEBUG) {
+                        Log.i(TAG, "检测APP-->>parent--自动跳过!!!!");
+                    }
+                }
+
+//                Rect outBounds = new Rect();
+//                childNodeInfo.getBoundsInScreen(outBounds);
+//                simulationClick(outBounds.centerX(), outBounds.centerY());
+//                execCmd(outBounds.centerX(), outBounds.centerY());
+
                 break;
             } else {
                 checkAccessibilityNodeInfoRecycle(childNodeInfo);
@@ -370,14 +396,71 @@ public class TrackerService extends AccessibilityService {
             AccessibilityNodeInfo node;
             for (int i = 0; i < nodeInfos.size(); i++) {
                 node = nodeInfos.get(i);
-                // 获得点击View的类型
-                // 进行模拟点击
-                if (node.isEnabled()) {
+                if (node != null && node.isEnabled()) {
                     return node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
                 }
             }
         }
         return false;
+    }
+
+    /**
+     * 模拟点击
+     *
+     * @param x x
+     * @param y y
+     */
+    private void simulationClick(int x, int y) {
+        String[] order = {"input", "tap", " ", x + "", y + ""};
+        try {
+            new ProcessBuilder(order).start();
+            if (BuildConfig.DEBUG) {
+                Log.i(TAG, "检测APP-->>模拟点击!!!!");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            if (BuildConfig.DEBUG) {
+                Log.i(TAG, "检测APP-->>模拟点击--IOException!!!!");
+            }
+        }
+    }
+
+    /**
+     * 执行ADB命令：input tap 125 340
+     */
+    private void execCmd(int x, int y) {
+//        String[] order = {"input", "tap", " ", x + "", y + ""};
+        String order = "input" + " tap" + " " + x + " " + y;
+        try {
+            OutputStream os = Runtime.getRuntime().exec("su").getOutputStream();
+            os.write(order.getBytes());
+            os.flush();
+            if (BuildConfig.DEBUG) {
+                Log.i(TAG, "检测APP-->>执行ADB命令!!!!");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (BuildConfig.DEBUG) {
+                Log.i(TAG, "检测APP-->>执行ADB命令--Exception!!!!");
+            }
+        }
+    }
+
+    /**
+     * 模拟点击
+     * 需要系统签名
+     *
+     * @param x x
+     * @param y y
+     */
+    private void simulationClick2(int x, int y) {
+        try {
+            Instrumentation inst = new Instrumentation();
+            inst.sendPointerSync(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN, x, y, 0));
+            inst.sendPointerSync(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_UP, x, y, 0));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
