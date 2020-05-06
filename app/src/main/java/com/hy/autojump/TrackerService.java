@@ -1,16 +1,22 @@
 package com.hy.autojump;
 
 import android.accessibilityservice.AccessibilityService;
+import android.accessibilityservice.GestureDescription;
 import android.app.Instrumentation;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Path;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
@@ -48,6 +54,12 @@ public class TrackerService extends AccessibilityService {
     public static final String A_LI_PAY_ANT_FOREST_CLASS = "com.alipay.mobile.nebulax.integration.mpaas.activity.NebulaActivity";
     public static final String ANT_FOREST_TITLE = "蚂蚁森林";
 
+    public static final String TIK_TOK_PACKAGE = "com.ss.android.ugc.aweme";
+    public static final String TIK_TOK_CLASS = "main.MainActivity";
+
+    private int mScreenWidth;
+    private int mScreenHeight;
+
     /**
      * 包名白名单--过滤不检测
      */
@@ -80,6 +92,11 @@ public class TrackerService extends AccessibilityService {
      */
     private boolean mAntForest;
 
+    /**
+     * 是否忽略抖音主页面划走广告
+     */
+    private boolean mIgnoreTikTokAd;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -107,6 +124,8 @@ public class TrackerService extends AccessibilityService {
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
+        mScreenWidth = getScreenWidth(this);
+        mScreenHeight = getScreenHeight(this);
         addWhiteList();
 
 //        AccessibilityServiceInfo accessibilityServiceInfo = new AccessibilityServiceInfo();
@@ -144,7 +163,6 @@ public class TrackerService extends AccessibilityService {
         mOpenNewApp = !mPackageNameTemp.equals(mPackageName);
         if (mOpenNewApp) {
             mAutoJump = false;
-            mAntForest = false;
             if (BuildConfig.DEBUG) {
                 Log.i(TAG, "检测APP-->>打开了新的App:" + mPackageName);
             }
@@ -171,6 +189,8 @@ public class TrackerService extends AccessibilityService {
 
         // functionAutoGetAntPower();
 
+        functionTikTokAutoJumpAd();
+
         if (!mPackageNameTemp.equals(mPackageName)) {
             mPackageNameTemp = mPackageName;
         }
@@ -185,6 +205,7 @@ public class TrackerService extends AccessibilityService {
         }
         if (!mPackageName.equals(A_LI_PAY_PACKAGE)) {
             // 不是支付宝
+            mAntForest = false;
             return;
         }
         if (!mClassName.contains(A_LI_PAY_ANT_FOREST_CLASS)) {
@@ -336,12 +357,12 @@ public class TrackerService extends AccessibilityService {
             if (!TextUtils.isEmpty(childNodeInfo.getText())) {
                 textContent = childNodeInfo.getText().toString();
             }
-            if (BuildConfig.DEBUG) {
-                Log.i(TAG, "NodeInfo: " + i + " "
-                        + "className:" + className + " : "
-                        + childNodeInfo.getContentDescription() + " : "
-                        + textContent);
-            }
+//            if (BuildConfig.DEBUG) {
+//                Log.i(TAG, "NodeInfo: " + i + " "
+//                        + "className:" + className + " : "
+//                        + childNodeInfo.getContentDescription() + " : "
+//                        + textContent);
+//            }
 
             if (!TextUtils.isEmpty(textContent)
                     && textContent.contains(JUMP)) {
@@ -370,6 +391,130 @@ public class TrackerService extends AccessibilityService {
                 checkAccessibilityNodeInfoForJump(childNodeInfo);
             }
         }
+    }
+
+    /**
+     * 功能--抖音自动跳广告
+     */
+    private void functionTikTokAutoJumpAd() {
+        if (!Global.AUTO_TIK_TOK_JUMP_AD) {
+            return;
+        }
+        if (!mPackageName.equals(TIK_TOK_PACKAGE)) {
+            // 不是抖音
+            mIgnoreTikTokAd = true;
+            return;
+        }
+        if (!mClassName.contains(TIK_TOK_CLASS)) {
+            // 不是抖音主页面
+            mIgnoreTikTokAd = true;
+            return;
+        }
+
+        if (mIgnoreTikTokAd) {
+            return;
+        }
+
+        // 开始检测
+        AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
+        checkAccessibilityNodeInfoForJumpTikTokAd(nodeInfo);
+    }
+
+    /**
+     * 抖音跳过广告
+     */
+    public void checkAccessibilityNodeInfoForJumpTikTokAd(AccessibilityNodeInfo nodeInfo) {
+        if (mIgnoreTikTokAd) {
+            return;
+        }
+        if (nodeInfo == null) {
+            return;
+        }
+        if (nodeInfo.getChildCount() == 0) {
+            return;
+        }
+
+        int size = nodeInfo.getChildCount();
+        for (int i = 0; i < size; i++) {
+            if (mIgnoreTikTokAd) {
+                break;
+            }
+            AccessibilityNodeInfo childNodeInfo = nodeInfo.getChild(i);
+            if (childNodeInfo == null) {
+                continue;
+            }
+            String className = "";
+            if (!TextUtils.isEmpty(childNodeInfo.getClassName())) {
+                className = childNodeInfo.getClassName().toString();
+            }
+            String textContent = "";
+            if (!TextUtils.isEmpty(childNodeInfo.getText())) {
+                textContent = childNodeInfo.getText().toString();
+            }
+//            if (BuildConfig.DEBUG) {
+//                Log.i(TAG, "TikTok:NodeInfo: " + i + " "
+//                        + "className:" + className + " : "
+//                        + childNodeInfo.getContentDescription() + " : "
+//                        + textContent);
+//            }
+
+            boolean check = !TextUtils.isEmpty(textContent)
+                    && (textContent.contains("[t]") || textContent.contains("抖音小游戏"));
+            boolean isVisibleToUser = childNodeInfo.isVisibleToUser();
+            if (!mIgnoreTikTokAd && check && isVisibleToUser) {
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "抖音-->>发现广告视频!!!!");
+                }
+                // 划走
+                gestureSwipeUp();
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "抖音-->>划走广告-->>" + textContent);
+                }
+                mIgnoreTikTokAd = true;
+                break;
+            } else {
+                checkAccessibilityNodeInfoForJumpTikTokAd(childNodeInfo);
+            }
+        }
+    }
+
+    /**
+     * 向上滑动屏幕
+     */
+    private void gestureSwipeUp() {
+        GestureDescription.Builder builder = new GestureDescription.Builder();
+        Path path = new Path();
+        int x = mScreenWidth / 2;
+        int y = mScreenHeight / 2;
+        path.moveTo(x, y);
+        path.lineTo(x, 0);
+        GestureDescription gestureDescription = builder
+                .addStroke(new GestureDescription.StrokeDescription(path, 100, 100))
+                .build();
+        dispatchGesture(gestureDescription, new AccessibilityService.GestureResultCallback() {
+            @Override
+            public void onCompleted(GestureDescription gestureDescription) {
+                super.onCompleted(gestureDescription);
+                if (BuildConfig.DEBUG) {
+                    Log.w(TAG, "dispatchGesture===onCompleted");
+                }
+            }
+
+            @Override
+            public void onCancelled(GestureDescription gestureDescription) {
+                if (BuildConfig.DEBUG) {
+                    Log.w(TAG, "dispatchGesture===onCancelled");
+                }
+            }
+
+        }, new Handler(Looper.getMainLooper()));
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mIgnoreTikTokAd = false;
+            }
+        }, 300);
     }
 
     /**
@@ -581,6 +726,24 @@ public class TrackerService extends AccessibilityService {
      */
     public boolean clickBack() {
         return performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
+    }
+
+    public static int getScreenHeight(Context context) {
+        DisplayMetrics metric = new DisplayMetrics();
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        if (wm != null) {
+            wm.getDefaultDisplay().getMetrics(metric);
+        }
+        return metric.heightPixels;
+    }
+
+    public static int getScreenWidth(Context context) {
+        DisplayMetrics metric = new DisplayMetrics();
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        if (wm != null) {
+            wm.getDefaultDisplay().getMetrics(metric);
+        }
+        return metric.widthPixels;
     }
 
     @Override

@@ -146,4 +146,19 @@ public class PreferManager {
         edit.putBoolean(SEE_ACTIVITY_CONFIG, isOpen).apply();
     }
 
+    /**
+     * ================================================
+     * 抖音自动划走广告开关
+     * ================================================
+     */
+    public static final String AUTO_TIK_TOK_JUMP_AD_CONFIG = "AUTO_TIK_TOK_JUMP_AD_CONFIG";
+
+    public static boolean getAutoTikTokAdConfig() {
+        return sp.getBoolean(AUTO_TIK_TOK_JUMP_AD_CONFIG, false);
+    }
+
+    public static void setAutoTikTokAdConfig(boolean isOpen) {
+        edit.putBoolean(AUTO_TIK_TOK_JUMP_AD_CONFIG, isOpen).apply();
+    }
+
 }

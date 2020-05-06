@@ -91,7 +91,7 @@
                         android:layout_gravity="center_vertical"
                         android:layout_marginTop="4dp"
                         android:lineSpacingExtra="3dp"
-                        android:text="打开应用时帮您自动跳过广告"
+                        android:text="打开应用时帮您自动跳过开屏广告"
                         android:textColor="@color/color_grey_500"
                         android:textSize="12dp"
                         android:visibility="visible"
@@ -153,6 +153,58 @@
 
                 <Switch
                     android:id="@+id/switch3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@color/color_white"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="10dp"
+                android:visibility="visible"
+                tools:visibility="visible">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:lineSpacingExtra="3dp"
+                        android:text="抖音跳过广告"
+                        android:textColor="@color/color_grey_700"
+                        android:textSize="18dp"
+                        android:visibility="visible"
+                        tools:visibility="visible" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginTop="4dp"
+                        android:lineSpacingExtra="3dp"
+                        android:text="使用抖音时帮您自动划走视频广告"
+                        android:textColor="@color/color_grey_500"
+                        android:textSize="12dp"
+                        android:visibility="visible"
+                        tools:visibility="visible" />
+
+                </LinearLayout>
+
+                <Switch
+                    android:id="@+id/switch5"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical" />

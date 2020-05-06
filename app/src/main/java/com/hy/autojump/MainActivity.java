@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private Switch mSwitch2;
     private Switch mSwitch3;
     private Switch mSwitch4;
+    private Switch mSwitch5;
     private Switch mSwitchOpenFloat;
 
     private boolean mAccessibilityStart;
@@ -52,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
         mSwitch2 = findViewById(R.id.switch2);
         mSwitch3 = findViewById(R.id.switch3);
         mSwitch4 = findViewById(R.id.switch4);
+        mSwitch5 = findViewById(R.id.switch5);
         mSwitchOpenFloat = findViewById(R.id.btn_open_float);
 
         initSwitchStatus();
@@ -63,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
         mSwitch2.setChecked(Global.AUTO_JUMP = PreferManager.getAutoJumpConfig());
         mSwitch3.setChecked(Global.AUTO_GET_POWER = PreferManager.getAutoGetPowerConfig());
         mSwitch4.setChecked(Global.APP_TASK_HIDE = PreferManager.getAppTaskHideConfig());
+        mSwitch5.setChecked(Global.AUTO_TIK_TOK_JUMP_AD = PreferManager.getAutoTikTokAdConfig());
     }
 
     private void initClickListener() {
@@ -108,6 +111,19 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     PreferManager.setAppTaskHideConfig(true);
                     Global.APP_TASK_HIDE = true;
+                }
+            }
+        });
+
+        mSwitch5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (PreferManager.getAutoTikTokAdConfig()) {
+                    PreferManager.setAutoTikTokAdConfig(false);
+                    Global.AUTO_TIK_TOK_JUMP_AD = false;
+                } else {
+                    PreferManager.setAutoTikTokAdConfig(true);
+                    Global.AUTO_TIK_TOK_JUMP_AD = true;
                 }
             }
         });

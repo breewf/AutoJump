@@ -27,4 +27,9 @@ public class Global {
      */
     public static boolean SEE_ACTIVITY;
 
+    /**
+     * 自动跳过抖音广告开关
+     */
+    public static boolean AUTO_TIK_TOK_JUMP_AD;
+
 }
