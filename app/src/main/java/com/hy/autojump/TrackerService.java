@@ -23,10 +23,16 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import com.hy.autojump.common.Global;
 import com.hy.autojump.event.ActivityChangedEvent;
 
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimerTask;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import de.greenrobot.event.EventBus;
 
@@ -59,6 +65,13 @@ public class TrackerService extends AccessibilityService {
 
     private int mScreenWidth;
     private int mScreenHeight;
+
+    private final static int TIMER_TASK_DELAY_NONE = 0;
+    private final static int TIMER_TASK_DELAY_1000 = 1000;
+    private final static int TIMER_TASK_1000 = 1000;
+
+    private ScheduledExecutorService mScheduledExecutorService;
+    private TimerTask mTimerTask;
 
     /**
      * 包名白名单--过滤不检测
@@ -163,6 +176,7 @@ public class TrackerService extends AccessibilityService {
         mOpenNewApp = !mPackageNameTemp.equals(mPackageName);
         if (mOpenNewApp) {
             mAutoJump = false;
+            mIgnoreTikTokAd = false;
             if (BuildConfig.DEBUG) {
                 Log.i(TAG, "检测APP-->>打开了新的App:" + mPackageName);
             }
@@ -297,7 +311,7 @@ public class TrackerService extends AccessibilityService {
                 checkAccessibilityNodeInfoForJump(nodeInfo);
 
                 if (mOpenNewApp) {
-                    new Handler().postDelayed(new Runnable() {
+                    App.getHandler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             if (!mAutoJump) {
@@ -375,16 +389,18 @@ public class TrackerService extends AccessibilityService {
 
                 AccessibilityNodeInfo parentNodeInfo = childNodeInfo.getParent();
                 if (parentNodeInfo != null) {
-                    parentNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                    if (BuildConfig.DEBUG) {
-                        Log.i(TAG, "检测APP-->>parent--自动跳过!!!!");
+                    if (!"com.netease.cloudmusic".equals(mPackageName)) {
+                        parentNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                        if (BuildConfig.DEBUG) {
+                            Log.i(TAG, "检测APP-->>parent--自动跳过!!!!");
+                        }
                     }
                 }
 
-//                Rect outBounds = new Rect();
-//                childNodeInfo.getBoundsInScreen(outBounds);
-//                simulationClick(outBounds.centerX(), outBounds.centerY());
-//                execCmd(outBounds.centerX(), outBounds.centerY());
+                //Rect outBounds = new Rect();
+                //childNodeInfo.getBoundsInScreen(outBounds);
+                //simulationClick(outBounds.centerX(), outBounds.centerY());
+                //execCmd(outBounds.centerX(), outBounds.centerY());
 
                 break;
             } else {
@@ -412,6 +428,9 @@ public class TrackerService extends AccessibilityService {
         }
 
         if (mIgnoreTikTokAd) {
+            if (BuildConfig.DEBUG) {
+                Log.i(TAG, "TikTok-->>mIgnoreTikTokAd--return1111-->>");
+            }
             return;
         }
 
@@ -425,6 +444,9 @@ public class TrackerService extends AccessibilityService {
      */
     public void checkAccessibilityNodeInfoForJumpTikTokAd(AccessibilityNodeInfo nodeInfo) {
         if (mIgnoreTikTokAd) {
+            if (BuildConfig.DEBUG) {
+                Log.i(TAG, "TikTok-->>mIgnoreTikTokAd--return2222-->>");
+            }
             return;
         }
         if (nodeInfo == null) {
@@ -437,6 +459,9 @@ public class TrackerService extends AccessibilityService {
         int size = nodeInfo.getChildCount();
         for (int i = 0; i < size; i++) {
             if (mIgnoreTikTokAd) {
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "TikTok-->>mIgnoreTikTokAd----break-->>");
+                }
                 break;
             }
             AccessibilityNodeInfo childNodeInfo = nodeInfo.getChild(i);
@@ -462,15 +487,12 @@ public class TrackerService extends AccessibilityService {
                     && (textContent.contains("[t]") || textContent.contains("抖音小游戏"));
             boolean isVisibleToUser = childNodeInfo.isVisibleToUser();
             if (!mIgnoreTikTokAd && check && isVisibleToUser) {
+                mIgnoreTikTokAd = true;
                 if (BuildConfig.DEBUG) {
-                    Log.i(TAG, "抖音-->>发现广告视频!!!!");
+                    Log.i(TAG, "TikTok-->>发现广告视频-->>" + textContent);
                 }
                 // 划走
                 gestureSwipeUp();
-                if (BuildConfig.DEBUG) {
-                    Log.i(TAG, "抖音-->>划走广告-->>" + textContent);
-                }
-                mIgnoreTikTokAd = true;
                 break;
             } else {
                 checkAccessibilityNodeInfoForJumpTikTokAd(childNodeInfo);
@@ -495,6 +517,7 @@ public class TrackerService extends AccessibilityService {
             @Override
             public void onCompleted(GestureDescription gestureDescription) {
                 super.onCompleted(gestureDescription);
+                mIgnoreTikTokAd = false;
                 if (BuildConfig.DEBUG) {
                     Log.w(TAG, "dispatchGesture===onCompleted");
                 }
@@ -502,6 +525,7 @@ public class TrackerService extends AccessibilityService {
 
             @Override
             public void onCancelled(GestureDescription gestureDescription) {
+                mIgnoreTikTokAd = false;
                 if (BuildConfig.DEBUG) {
                     Log.w(TAG, "dispatchGesture===onCancelled");
                 }
@@ -509,12 +533,11 @@ public class TrackerService extends AccessibilityService {
 
         }, new Handler(Looper.getMainLooper()));
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mIgnoreTikTokAd = false;
-            }
-        }, 300);
+        if (BuildConfig.DEBUG) {
+            Log.i(TAG, "TikTok-->>划走广告-->>!!!!");
+        }
+
+        startTimerTask();
     }
 
     /**
@@ -610,8 +633,7 @@ public class TrackerService extends AccessibilityService {
         }
         if (pi != null) {
             boolean isSysApp = (pi.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 1;
-            boolean isSysUpd = (pi.applicationInfo.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) == 1;
-            isSystemApp = isSysApp || isSysUpd;
+            isSystemApp = isSysApp;
         }
         return isSystemApp;
     }
@@ -746,9 +768,44 @@ public class TrackerService extends AccessibilityService {
         return metric.widthPixels;
     }
 
+    /**
+     * TimerTask
+     */
+    private void startTimerTask() {
+        if (mScheduledExecutorService == null) {
+            mScheduledExecutorService = new ScheduledThreadPoolExecutor(3,
+                    new BasicThreadFactory.Builder().namingPattern("scheduled-pool-%d").daemon(true).build());
+        }
+        if (mTimerTask == null) {
+            mTimerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    mIgnoreTikTokAd = false;
+                    cancelTimeTask();
+                    if (BuildConfig.DEBUG) {
+                        Log.i(TAG, "TikTok-->>mIgnoreTikTokAd==false-->>!!!!");
+                    }
+                }
+            };
+        }
+        mScheduledExecutorService.schedule(mTimerTask, TIMER_TASK_1000, TimeUnit.MILLISECONDS);
+    }
+
+    private void cancelTimeTask() {
+        if (mTimerTask != null) {
+            mTimerTask.cancel();
+            mTimerTask = null;
+        }
+        if (mScheduledExecutorService != null) {
+            mScheduledExecutorService.shutdown();
+            mScheduledExecutorService = null;
+        }
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
+        cancelTimeTask();
         Log.d(TAG, "onDestroy");
     }
 }

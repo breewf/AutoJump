@@ -1,6 +1,8 @@
 package com.hy.autojump;
 
 import android.app.Application;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.hy.autojump.common.PreferManager;
 
@@ -11,10 +13,17 @@ import com.hy.autojump.common.PreferManager;
  */
 public class App extends Application {
 
+    private static Handler mHandler;
+
     @Override
     public void onCreate() {
         super.onCreate();
+        mHandler = new Handler(Looper.getMainLooper());
 
         PreferManager.init(this);
+    }
+
+    public static Handler getHandler() {
+        return mHandler;
     }
 }
