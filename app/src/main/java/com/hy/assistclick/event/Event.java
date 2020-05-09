@@ -1,4 +1,4 @@
-package com.hy.autojump.event;
+package com.hy.assistclick.event;
 
 import android.os.Bundle;
 

@@ -1,4 +1,4 @@
-package com.hy.autojump;
+package com.hy.assistclick;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -9,10 +9,10 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.hy.autojump.common.Global;
-import com.hy.autojump.common.PreferManager;
-import com.hy.autojump.event.Actions;
-import com.hy.autojump.event.Event;
+import com.hy.assistclick.common.Global;
+import com.hy.assistclick.common.PreferManager;
+import com.hy.assistclick.event.Actions;
+import com.hy.assistclick.event.Event;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -192,8 +192,8 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         if (AccessibilityUtils.checkAccessibility(MainActivity.this, true)) {
-            startService(new Intent(MainActivity.this, TrackerService.class)
-                    .putExtra(TrackerService.COMMAND, TrackerService.COMMAND_OPEN)
+            startService(new Intent(MainActivity.this, AssistService.class)
+                    .putExtra(AssistService.COMMAND, AssistService.COMMAND_OPEN)
             );
         }
     }

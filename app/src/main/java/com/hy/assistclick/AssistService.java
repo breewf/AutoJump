@@ -1,4 +1,4 @@
-package com.hy.autojump;
+package com.hy.assistclick;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.GestureDescription;
@@ -19,9 +19,10 @@ import android.view.MotionEvent;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.widget.Toast;
 
-import com.hy.autojump.common.Global;
-import com.hy.autojump.event.ActivityChangedEvent;
+import com.hy.assistclick.common.Global;
+import com.hy.assistclick.event.ActivityChangedEvent;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
@@ -39,9 +40,9 @@ import de.greenrobot.event.EventBus;
 /**
  * @author hy
  * @date 2020/4/29
- * ClassDesc:检测服务.
+ * ClassDesc:辅助功能服务.
  **/
-public class TrackerService extends AccessibilityService {
+public class AssistService extends AccessibilityService {
 
     public static final String TAG = "TrackerService";
 
@@ -104,6 +105,7 @@ public class TrackerService extends AccessibilityService {
      * 是否是蚂蚁森林页面
      */
     private boolean mAntForest;
+    private boolean mFindAntWeb;
 
     /**
      * 是否忽略抖音主页面划走广告
@@ -214,9 +216,9 @@ public class TrackerService extends AccessibilityService {
      * 功能--蚂蚁森林，自动收取能量
      */
     private void functionAutoGetAntPower() {
-        if (!Global.AUTO_GET_POWER) {
-            return;
-        }
+//        if (!Global.AUTO_GET_POWER) {
+//            return;
+//        }
         if (!mPackageName.equals(A_LI_PAY_PACKAGE)) {
             // 不是支付宝
             mAntForest = false;
@@ -232,6 +234,8 @@ public class TrackerService extends AccessibilityService {
             Log.i(TAG, "蚂蚁森林-->>发现蚂蚁森林页面!!!!");
         }
 
+        mFindAntWeb = false;
+
         // 开始检测
         AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
         checkAccessibilityNodeInfoForGetPower(nodeInfo);
@@ -241,6 +245,59 @@ public class TrackerService extends AccessibilityService {
      * 蚂蚁森林收能量
      */
     public void checkAccessibilityNodeInfoForGetPower(AccessibilityNodeInfo nodeInfo) {
+        if (mFindAntWeb) {
+            return;
+        }
+        if (nodeInfo == null) {
+            return;
+        }
+        if (nodeInfo.getChildCount() == 0) {
+            return;
+        }
+
+        int size = nodeInfo.getChildCount();
+        for (int i = 0; i < size; i++) {
+            if (mFindAntWeb) {
+                break;
+            }
+            AccessibilityNodeInfo childNodeInfo = nodeInfo.getChild(i);
+            if (childNodeInfo == null) {
+                continue;
+            }
+            String className = "";
+            if (!TextUtils.isEmpty(childNodeInfo.getClassName())) {
+                className = childNodeInfo.getClassName().toString();
+            }
+            String textContent = "";
+            if (!TextUtils.isEmpty(childNodeInfo.getText())) {
+                textContent = childNodeInfo.getText().toString();
+            }
+//            if (BuildConfig.DEBUG) {
+//                Log.i(TAG, "NodeInfo: " + i + " "
+//                        + "className:" + className + " : "
+//                        + childNodeInfo.getContentDescription() + " : "
+//                        + textContent);
+//            }
+
+            if (!TextUtils.isEmpty(textContent)
+                    && textContent.contains(ANT_FOREST_TITLE)) {
+                mAntForest = true;
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "蚂蚁森林-->>发现蚂蚁森林!!!!");
+                }
+            }
+
+            if (mAntForest && "com.uc.webview.export.WebView".equals(className)) {
+                mFindAntWeb = true;
+                findAntPowerButton(childNodeInfo);
+                break;
+            }
+
+            checkAccessibilityNodeInfoForGetPower(childNodeInfo);
+        }
+    }
+
+    private void findAntPowerButton(AccessibilityNodeInfo nodeInfo) {
         if (nodeInfo == null) {
             return;
         }
@@ -262,33 +319,22 @@ public class TrackerService extends AccessibilityService {
             if (!TextUtils.isEmpty(childNodeInfo.getText())) {
                 textContent = childNodeInfo.getText().toString();
             }
-            if (BuildConfig.DEBUG) {
-                Log.i(TAG, "NodeInfo: " + i + " "
-                        + "className:" + className + " : "
-                        + childNodeInfo.getContentDescription() + " : "
-                        + textContent);
-            }
 
-            if (!TextUtils.isEmpty(textContent)
-                    && textContent.contains(ANT_FOREST_TITLE)) {
-                mAntForest = true;
-                if (BuildConfig.DEBUG) {
-                    Log.i(TAG, "蚂蚁森林-->>发现蚂蚁森林!!!!");
+            // "android.widget.Button".equals(className)
+            boolean isPower = !TextUtils.isEmpty(textContent)
+                    && (textContent.contains("收集能量") || textContent.contains("绿色能量"));
+            if (isPower) {
+                boolean isClickable = childNodeInfo.isClickable();
+                // boolean isResIdNull = childNodeInfo.getViewIdResourceName() == null;
+                if (isClickable) {
+                    childNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                    if (BuildConfig.DEBUG) {
+                        Log.i(TAG, "蚂蚁森林-->>收取一个能量-->>" + textContent);
+                    }
+                    Toast.makeText(this, "收取一个能量", Toast.LENGTH_SHORT).show();
                 }
             }
-
-            if (mAntForest && !TextUtils.isEmpty(textContent)
-                    && !textContent.contains("收取")
-                    && !textContent.contains("获得")
-                    && (textContent.contains("g") || textContent.contains("绿色能量"))) {
-                // 点击收取能量
-                childNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                if (BuildConfig.DEBUG) {
-                    Log.i(TAG, "蚂蚁森林-->>收取一个能量-->>" + textContent);
-                }
-            }
-
-            checkAccessibilityNodeInfoForGetPower(childNodeInfo);
+            findAntPowerButton(childNodeInfo);
         }
     }
 
@@ -632,8 +678,7 @@ public class TrackerService extends AccessibilityService {
             Log.e(TAG, t.getMessage(), t);
         }
         if (pi != null) {
-            boolean isSysApp = (pi.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 1;
-            isSystemApp = isSysApp;
+            isSystemApp = (pi.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 1;
         }
         return isSystemApp;
     }

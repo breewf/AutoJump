@@ -1,4 +1,4 @@
-package com.hy.autojump;
+package com.hy.assistclick;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -11,9 +11,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.hy.autojump.event.Actions;
-import com.hy.autojump.event.ActivityChangedEvent;
-import com.hy.autojump.event.Event;
+import com.hy.assistclick.event.Actions;
+import com.hy.assistclick.event.ActivityChangedEvent;
+import com.hy.assistclick.event.Event;
 
 import de.greenrobot.event.EventBus;
 

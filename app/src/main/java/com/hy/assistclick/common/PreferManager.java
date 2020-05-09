@@ -1,4 +1,4 @@
-package com.hy.autojump.common;
+package com.hy.assistclick.common;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

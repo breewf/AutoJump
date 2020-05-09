@@ -1,10 +1,10 @@
-package com.hy.autojump;
+package com.hy.assistclick;
 
 import android.app.Application;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.hy.autojump.common.PreferManager;
+import com.hy.assistclick.common.PreferManager;
 
 /**
  * @author HY

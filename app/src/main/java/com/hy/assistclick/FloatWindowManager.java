@@ -1,4 +1,4 @@
-package com.hy.autojump;
+package com.hy.assistclick;
 
 import android.content.Context;
 import android.graphics.PixelFormat;

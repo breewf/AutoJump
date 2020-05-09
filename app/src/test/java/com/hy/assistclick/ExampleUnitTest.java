@@ -1,4 +1,4 @@
-package com.hy.autojump;
+package com.hy.assistclick;
 
 import org.junit.Test;
 

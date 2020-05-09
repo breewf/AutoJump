@@ -214,6 +214,21 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:lineSpacingExtra="3dp"
+                android:paddingStart="16dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="10dp"
+                android:text="其它功能陆续开放中..."
+                android:textColor="@color/color_blue_400"
+                android:textSize="12dp"
+                android:visibility="visible"
+                tools:visibility="visible" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="10dp"
                 android:lineSpacingExtra="3dp"
@@ -284,7 +299,7 @@
                 android:text="其它设置"
                 android:textColor="@color/colorPrimary"
                 android:textSize="16dp"
-                android:visibility="visible"
+                android:visibility="gone"
                 tools:visibility="visible" />
 
             <LinearLayout
@@ -297,7 +312,7 @@
                 android:paddingTop="10dp"
                 android:paddingEnd="16dp"
                 android:paddingBottom="10dp"
-                android:visibility="visible"
+                android:visibility="gone"
                 tools:visibility="visible">
 
                 <LinearLayout

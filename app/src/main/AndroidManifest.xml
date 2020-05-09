@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.hy.autojump">
+    package="com.hy.assistclick">
 
     <!--    <uses-permission android:name="android.permission.INTERNET" />-->
 
@@ -9,7 +9,7 @@
     <uses-permission android:name="android.permission.SYSTEM_OVERLAY_WINDOW" />
 
     <application
-        android:name=".App"
+        android:name="com.hy.assistclick.App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -18,7 +18,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.hy.assistclick.MainActivity"
             android:screenOrientation="portrait"
             android:excludeFromRecents="true">
             <intent-filter>
@@ -29,7 +29,7 @@
         </activity>
 
         <service
-            android:name=".TrackerService"
+            android:name="com.hy.assistclick.AssistService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />

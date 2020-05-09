@@ -1,4 +1,4 @@
-package com.hy.autojump.common;
+package com.hy.assistclick.common;
 
 /**
  * @author hy
