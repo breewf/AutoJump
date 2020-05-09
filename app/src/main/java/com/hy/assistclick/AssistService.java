@@ -105,7 +105,6 @@ public class AssistService extends AccessibilityService {
      * 是否是蚂蚁森林页面
      */
     private boolean mAntForest;
-    private boolean mFindAntWeb;
 
     /**
      * 是否忽略抖音主页面划走广告
@@ -205,7 +204,7 @@ public class AssistService extends AccessibilityService {
 
         // functionAutoGetAntPower();
 
-        functionTikTokAutoJumpAd();
+        // functionTikTokAutoJumpAd();
 
         if (!mPackageNameTemp.equals(mPackageName)) {
             mPackageNameTemp = mPackageName;
@@ -216,9 +215,9 @@ public class AssistService extends AccessibilityService {
      * 功能--蚂蚁森林，自动收取能量
      */
     private void functionAutoGetAntPower() {
-//        if (!Global.AUTO_GET_POWER) {
-//            return;
-//        }
+        if (!Global.AUTO_GET_POWER) {
+            return;
+        }
         if (!mPackageName.equals(A_LI_PAY_PACKAGE)) {
             // 不是支付宝
             mAntForest = false;
@@ -234,8 +233,6 @@ public class AssistService extends AccessibilityService {
             Log.i(TAG, "蚂蚁森林-->>发现蚂蚁森林页面!!!!");
         }
 
-        mFindAntWeb = false;
-
         // 开始检测
         AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
         checkAccessibilityNodeInfoForGetPower(nodeInfo);
@@ -245,9 +242,6 @@ public class AssistService extends AccessibilityService {
      * 蚂蚁森林收能量
      */
     public void checkAccessibilityNodeInfoForGetPower(AccessibilityNodeInfo nodeInfo) {
-        if (mFindAntWeb) {
-            return;
-        }
         if (nodeInfo == null) {
             return;
         }
@@ -257,9 +251,6 @@ public class AssistService extends AccessibilityService {
 
         int size = nodeInfo.getChildCount();
         for (int i = 0; i < size; i++) {
-            if (mFindAntWeb) {
-                break;
-            }
             AccessibilityNodeInfo childNodeInfo = nodeInfo.getChild(i);
             if (childNodeInfo == null) {
                 continue;
@@ -279,17 +270,19 @@ public class AssistService extends AccessibilityService {
 //                        + textContent);
 //            }
 
-            if (!TextUtils.isEmpty(textContent)
-                    && textContent.contains(ANT_FOREST_TITLE)) {
-                mAntForest = true;
-                if (BuildConfig.DEBUG) {
-                    Log.i(TAG, "蚂蚁森林-->>发现蚂蚁森林!!!!");
-                }
-            }
+//            if (!TextUtils.isEmpty(textContent)
+//                    && textContent.contains(ANT_FOREST_TITLE)) {
+//                mAntForest = true;
+//                if (BuildConfig.DEBUG) {
+//                    Log.i(TAG, "蚂蚁森林-->>发现蚂蚁森林!!!!");
+//                }
+//            }
 
-            if (mAntForest && "com.uc.webview.export.WebView".equals(className)) {
-                mFindAntWeb = true;
+            if ("com.uc.webview.export.WebView".equals(className)) {
                 findAntPowerButton(childNodeInfo);
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "蚂蚁森林-->>发现蚂蚁森林WebView-->>ChildCount:" + childNodeInfo.getChildCount());
+                }
                 break;
             }
 
@@ -320,19 +313,24 @@ public class AssistService extends AccessibilityService {
                 textContent = childNodeInfo.getText().toString();
             }
 
-            // "android.widget.Button".equals(className)
-            boolean isPower = !TextUtils.isEmpty(textContent)
-                    && (textContent.contains("收集能量") || textContent.contains("绿色能量"));
+//            boolean isPower = "android.widget.Button".equals(className)
+//                    && !TextUtils.isEmpty(textContent)
+//                    && (textContent.contains("收集能量") || textContent.contains("绿色能量"));
+            boolean isPower = "android.widget.Button".equals(className)
+                    && !TextUtils.isEmpty(textContent)
+                    && textContent.contains("收集能量");
             if (isPower) {
-                boolean isClickable = childNodeInfo.isClickable();
-                // boolean isResIdNull = childNodeInfo.getViewIdResourceName() == null;
-                if (isClickable) {
-                    childNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                    if (BuildConfig.DEBUG) {
-                        Log.i(TAG, "蚂蚁森林-->>收取一个能量-->>" + textContent);
-                    }
-                    Toast.makeText(this, "收取一个能量", Toast.LENGTH_SHORT).show();
+                childNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "蚂蚁森林-->>收取一个能量-->>" + textContent);
                 }
+
+//                AccessibilityNodeInfo parentNodeInfo = childNodeInfo.getParent();
+//                if (parentNodeInfo != null) {
+//                    parentNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+//                }
+
+                Toast.makeText(this, "收取一个能量", Toast.LENGTH_SHORT).show();
             }
             findAntPowerButton(childNodeInfo);
         }
@@ -435,11 +433,9 @@ public class AssistService extends AccessibilityService {
 
                 AccessibilityNodeInfo parentNodeInfo = childNodeInfo.getParent();
                 if (parentNodeInfo != null) {
-                    if (!"com.netease.cloudmusic".equals(mPackageName)) {
-                        parentNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                        if (BuildConfig.DEBUG) {
-                            Log.i(TAG, "检测APP-->>parent--自动跳过!!!!");
-                        }
+                    parentNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                    if (BuildConfig.DEBUG) {
+                        Log.i(TAG, "检测APP-->>parent--自动跳过!!!!");
                     }
                 }
 

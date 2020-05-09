@@ -168,7 +168,7 @@
                 android:paddingTop="10dp"
                 android:paddingEnd="16dp"
                 android:paddingBottom="10dp"
-                android:visibility="visible"
+                android:visibility="gone"
                 tools:visibility="visible">
 
                 <LinearLayout

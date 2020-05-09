@@ -2,8 +2,8 @@
     <string name="app_name">辅助点击</string>
 
     <string name="accessibility_service_description">开启此功能，以帮助您实现自动跳过等功能。
-        \n\n\n点击右上角开关，在弹出的对话框中点击“确定”。
-    \n\n\n本软件不会通过此功能收集任何用户信息，请放心使用。</string>
+        \n\n点击右上角开关，在弹出的对话框中点击“确定”。
+    \n\n本软件不会通过此功能收集任何用户信息，请放心使用。</string>
 
     <string name="help_title">帮助答疑</string>
     <string name="help_desc">1.为了保证功能的正常运行，请在多任务中锁定本软件。
