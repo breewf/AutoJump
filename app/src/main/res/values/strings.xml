@@ -1,7 +1,19 @@
 <resources>
     <string name="app_name">辅助点击</string>
 
-    <string name="accessibility_service_description">开启此功能, 以帮助您实现自动跳过等功能</string>
-    <string name="accessibility_service_description_activity">开启此功能, 以获取栈顶Activity</string>
+    <string name="accessibility_service_description">开启此功能，以帮助您实现自动跳过等功能。
+        \n\n\n点击右上角开关，在弹出的对话框中点击“确定”。
+    \n\n\n本软件不会通过此功能收集任何用户信息，请放心使用。</string>
+
+    <string name="help_title">帮助答疑</string>
+    <string name="help_desc">1.为了保证功能的正常运行，请在多任务中锁定本软件。
+    \n\n2.本软件退回桌面后在多任务中不可见，请在点击软件图标打开本软件后再上滑(或者点击多任务按钮)进入多任务，
+        然后锁定(不同手机锁定方式不同，大多为下拉卡片锁定或下拉卡片出现锁定图标后点击锁定)本软件。
+    \n\n3.请将本软件的后台管理模式修改为“允许后台运行”以防止被杀。该功能一般在“手机管家-权限管理-后台管理”中。
+    \n\n4.自动跳过功能支持大部分App的开屏广告自动跳过，部分App可能无法跳过，请悉知。
+    \n\n5.考虑到系统软件的使用频率较低以及支持系统自身发展，系统App在自动跳过功能的白名单中，暂不支持其自动跳过。
+    \n\n6.本软件只需开启辅助功能，无任何其它权限申请，不连接网络，无广告，绝对绿色。
+    \n\n7.本软件耗电量极低甚至可以忽略，经测试在电量管理中无法找到本软件的耗电情况，请放心使用。</string>
+
 
 </resources>
