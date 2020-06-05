@@ -32,4 +32,9 @@ public class Global {
      */
     public static boolean AUTO_TIK_TOK_JUMP_AD;
 
+    /**
+     * 自动登录电脑端微信开关
+     */
+    public static boolean AUTO_WE_CHAT_LOGIN;
+
 }

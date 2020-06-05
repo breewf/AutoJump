@@ -53,9 +53,10 @@ public class AssistService extends AccessibilityService {
     public static final int IGNORE_TIME = 5000;
 
     public static final String JUMP = "跳过";
+    public static final String LOGIN = "登录";
 
-    public static final String WEI_XIN__PACKAGE = "com.tencent.mm";
-    public static final String QQ__PACKAGE = "com.tencent.mobileqq";
+    public static final String WEI_XIN_PACKAGE = "com.tencent.mm";
+    public static final String QQ_PACKAGE = "com.tencent.mobileqq";
 
     public static final String A_LI_PAY_PACKAGE = "com.eg.android.AlipayGphone";
     public static final String A_LI_PAY_ANT_FOREST_CLASS = "com.alipay.mobile.nebulax.integration.mpaas.activity.NebulaActivity";
@@ -63,6 +64,8 @@ public class AssistService extends AccessibilityService {
 
     public static final String TIK_TOK_PACKAGE = "com.ss.android.ugc.aweme";
     public static final String TIK_TOK_CLASS = "main.MainActivity";
+
+    public static final String WEI_XIN_PC_LOGIN_CLASS = "com.tencent.mm.plugin.webwx.ui.ExtDeviceWXLoginUI";
 
     private int mScreenWidth;
     private int mScreenHeight;
@@ -156,11 +159,11 @@ public class AssistService extends AccessibilityService {
         if (!mPackageWhiteList.contains(getPackageName())) {
             mPackageWhiteList.add(getPackageName());
         }
-        if (!mPackageWhiteList.contains(WEI_XIN__PACKAGE)) {
-            mPackageWhiteList.add(WEI_XIN__PACKAGE);
+        if (!mPackageWhiteList.contains(WEI_XIN_PACKAGE)) {
+            mPackageWhiteList.add(WEI_XIN_PACKAGE);
         }
-        if (!mPackageWhiteList.contains(QQ__PACKAGE)) {
-            mPackageWhiteList.add(QQ__PACKAGE);
+        if (!mPackageWhiteList.contains(QQ_PACKAGE)) {
+            mPackageWhiteList.add(QQ_PACKAGE);
         }
         if (!mPackageWhiteList.contains(A_LI_PAY_PACKAGE)) {
             mPackageWhiteList.add(A_LI_PAY_PACKAGE);
@@ -198,6 +201,11 @@ public class AssistService extends AccessibilityService {
             }
         }
 
+        if (BuildConfig.DEBUG) {
+            Log.i(TAG, "PackageName-->>" + mPackageName);
+            Log.i(TAG, "ClassName------>>" + mClassName);
+        }
+
         // checkEvent(event);
 
         functionAutoJump();
@@ -205,6 +213,8 @@ public class AssistService extends AccessibilityService {
         // functionAutoGetAntPower();
 
         // functionTikTokAutoJumpAd();
+
+        functionAutoLoginPcWeChat();
 
         if (!mPackageNameTemp.equals(mPackageName)) {
             mPackageNameTemp = mPackageName;
@@ -538,6 +548,78 @@ public class AssistService extends AccessibilityService {
                 break;
             } else {
                 checkAccessibilityNodeInfoForJumpTikTokAd(childNodeInfo);
+            }
+        }
+    }
+
+    /**
+     * 功能--自动登录电脑端微信
+     */
+    private void functionAutoLoginPcWeChat() {
+        if (!Global.AUTO_WE_CHAT_LOGIN) {
+            return;
+        }
+        if (!mPackageName.equals(WEI_XIN_PACKAGE)) {
+            // 不是微信
+            return;
+        }
+        if (!mClassName.equals(WEI_XIN_PC_LOGIN_CLASS)) {
+            // 不是登录电脑端微信确认页面
+            return;
+        }
+
+        if (BuildConfig.DEBUG) {
+            Log.i(TAG, "检测自动登录电脑端微信-->>");
+        }
+
+        // 开始检测
+        AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
+        checkAccessibilityNodeInfoForAutoLoginPcWeChat(nodeInfo);
+    }
+
+    /**
+     * 自动登录电脑端微信
+     */
+    public void checkAccessibilityNodeInfoForAutoLoginPcWeChat(AccessibilityNodeInfo nodeInfo) {
+        if (nodeInfo == null) {
+            return;
+        }
+        if (nodeInfo.getChildCount() == 0) {
+            return;
+        }
+
+        int size = nodeInfo.getChildCount();
+        for (int i = 0; i < size; i++) {
+            AccessibilityNodeInfo childNodeInfo = nodeInfo.getChild(i);
+            if (childNodeInfo == null) {
+                continue;
+            }
+            String className = "";
+            if (!TextUtils.isEmpty(childNodeInfo.getClassName())) {
+                className = childNodeInfo.getClassName().toString();
+            }
+            String textContent = "";
+            if (!TextUtils.isEmpty(childNodeInfo.getText())) {
+                textContent = childNodeInfo.getText().toString();
+            }
+//            if (BuildConfig.DEBUG) {
+//                Log.i(TAG, "TikTok:NodeInfo: " + i + " "
+//                        + "className:" + className + " : "
+//                        + childNodeInfo.getContentDescription() + " : "
+//                        + textContent);
+//            }
+
+            boolean check = !TextUtils.isEmpty(textContent)
+                    && textContent.equals(LOGIN);
+            if (check) {
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "WeChat-->>登录电脑端微信-->>" + textContent);
+                }
+                // 点击登录
+                childNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                break;
+            } else {
+                checkAccessibilityNodeInfoForAutoLoginPcWeChat(childNodeInfo);
             }
         }
     }

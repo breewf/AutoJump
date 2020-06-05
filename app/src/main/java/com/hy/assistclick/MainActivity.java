@@ -32,12 +32,14 @@ public class MainActivity extends AppCompatActivity {
     public FloatWindowManager mTrackerWindowManager;
 
     private TextView mServiceStatusTv;
+    private TextView mOpenTipsTv;
 
     private Switch mSwitch1;
     private Switch mSwitch2;
     private Switch mSwitch3;
     private Switch mSwitch4;
     private Switch mSwitch5;
+    private Switch mSwitch6;
     private Switch mSwitchOpenFloat;
 
     private boolean mAccessibilityStart;
@@ -51,11 +53,13 @@ public class MainActivity extends AppCompatActivity {
         initTrackerWindowManager();
 
         mServiceStatusTv = findViewById(R.id.tv_service_status);
+        mOpenTipsTv = findViewById(R.id.tv_open_tips);
         mSwitch1 = findViewById(R.id.switch1);
         mSwitch2 = findViewById(R.id.switch2);
         mSwitch3 = findViewById(R.id.switch3);
         mSwitch4 = findViewById(R.id.switch4);
         mSwitch5 = findViewById(R.id.switch5);
+        mSwitch6 = findViewById(R.id.switch6);
         mSwitchOpenFloat = findViewById(R.id.btn_open_float);
 
         initSwitchStatus();
@@ -68,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
         mSwitch3.setChecked(Global.AUTO_GET_POWER = PreferManager.getAutoGetPowerConfig());
         mSwitch4.setChecked(Global.APP_TASK_HIDE = PreferManager.getAppTaskHideConfig());
         mSwitch5.setChecked(Global.AUTO_TIK_TOK_JUMP_AD = PreferManager.getAutoTikTokAdConfig());
+        mSwitch6.setChecked(Global.AUTO_WE_CHAT_LOGIN = PreferManager.getAutoWeChatLoginConfig());
     }
 
     private void initClickListener() {
@@ -130,6 +135,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        mSwitch6.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (PreferManager.getAutoWeChatLoginConfig()) {
+                    PreferManager.setAutoWeChatLoginConfig(false);
+                    Global.AUTO_WE_CHAT_LOGIN = false;
+                } else {
+                    PreferManager.setAutoWeChatLoginConfig(true);
+                    Global.AUTO_WE_CHAT_LOGIN = true;
+                }
+            }
+        });
+
         mSwitchOpenFloat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -140,6 +158,14 @@ public class MainActivity extends AppCompatActivity {
                 if (checkCanDrawOverlays(true)) {
                     addFloatView();
                 }
+            }
+        });
+
+        mOpenTipsTv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this,
+                        "嘻嘻，不指定哪天才能更新呢，但值得期待~", Toast.LENGTH_LONG).show();
             }
         });
     }

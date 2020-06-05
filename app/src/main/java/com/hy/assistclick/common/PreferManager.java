@@ -161,4 +161,19 @@ public class PreferManager {
         edit.putBoolean(AUTO_TIK_TOK_JUMP_AD_CONFIG, isOpen).apply();
     }
 
+    /**
+     * ================================================
+     * 自动登录电脑端微信开关
+     * ================================================
+     */
+    public static final String AUTO_WE_CHAT_LOGIN_CONFIG = "AUTO_WE_CHAT_LOGIN_CONFIG";
+
+    public static boolean getAutoWeChatLoginConfig() {
+        return sp.getBoolean(AUTO_WE_CHAT_LOGIN_CONFIG, false);
+    }
+
+    public static void setAutoWeChatLoginConfig(boolean isOpen) {
+        edit.putBoolean(AUTO_WE_CHAT_LOGIN_CONFIG, isOpen).apply();
+    }
+
 }
