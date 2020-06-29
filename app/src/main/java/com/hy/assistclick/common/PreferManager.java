@@ -176,4 +176,19 @@ public class PreferManager {
         edit.putBoolean(AUTO_WE_CHAT_LOGIN_CONFIG, isOpen).apply();
     }
 
+    /**
+     * ================================================
+     * 公众号文章辅助阅读开关
+     * ================================================
+     */
+    public static final String AUTO_WE_CHAT_ARTICLE_CONFIG = "AUTO_WE_CHAT_ARTICLE_CONFIG";
+
+    public static boolean getAutoWeChatArticleConfig() {
+        return sp.getBoolean(AUTO_WE_CHAT_ARTICLE_CONFIG, false);
+    }
+
+    public static void setAutoWeChatArticleConfig(boolean isOpen) {
+        edit.putBoolean(AUTO_WE_CHAT_ARTICLE_CONFIG, isOpen).apply();
+    }
+
 }

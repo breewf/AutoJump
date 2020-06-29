@@ -37,4 +37,9 @@ public class Global {
      */
     public static boolean AUTO_WE_CHAT_LOGIN;
 
+    /**
+     * 公众号文章辅助阅读开关
+     */
+    public static boolean AUTO_WE_CHAT_ARTICLE;
+
 }

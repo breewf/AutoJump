@@ -9,8 +9,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Path;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -69,6 +67,8 @@ public class AssistService extends AccessibilityService {
 
     private int mScreenWidth;
     private int mScreenHeight;
+
+    private FunctionManager mFunctionManager;
 
     private final static int TIMER_TASK_DELAY_NONE = 0;
     private final static int TIMER_TASK_DELAY_1000 = 1000;
@@ -145,6 +145,9 @@ public class AssistService extends AccessibilityService {
         mScreenHeight = getScreenHeight(this);
         addWhiteList();
 
+        mFunctionManager = new FunctionManager(this);
+        mFunctionManager.setScreen(mScreenWidth, mScreenHeight);
+
 //        AccessibilityServiceInfo accessibilityServiceInfo = new AccessibilityServiceInfo();
 //        accessibilityServiceInfo.eventTypes = AccessibilityEvent.TYPES_ALL_MASK;
 //        accessibilityServiceInfo.feedbackType = AccessibilityServiceInfo.FEEDBACK_SPOKEN;
@@ -201,12 +204,17 @@ public class AssistService extends AccessibilityService {
             }
         }
 
-        if (BuildConfig.DEBUG) {
-            Log.i(TAG, "PackageName-->>" + mPackageName);
-            Log.i(TAG, "ClassName------>>" + mClassName);
-        }
-
         // checkEvent(event);
+
+//        if (BuildConfig.DEBUG) {
+//            Log.i(TAG, "PackageName-->>" + mPackageName);
+//            Log.i(TAG, "ClassName------>>" + mClassName);
+//        }
+
+        if (mFunctionManager != null) {
+            mFunctionManager.setPackageName(mPackageName);
+            mFunctionManager.setClassName(mClassName);
+        }
 
         functionAutoJump();
 
@@ -215,6 +223,10 @@ public class AssistService extends AccessibilityService {
         // functionTikTokAutoJumpAd();
 
         functionAutoLoginPcWeChat();
+
+        if (mFunctionManager != null) {
+            mFunctionManager.functionAutoWeChatArticle();
+        }
 
         if (!mPackageNameTemp.equals(mPackageName)) {
             mPackageNameTemp = mPackageName;
@@ -633,9 +645,10 @@ public class AssistService extends AccessibilityService {
         int x = mScreenWidth / 2;
         int y = mScreenHeight / 2;
         path.moveTo(x, y);
-        path.lineTo(x, 0);
+        path.lineTo(x, 200);
         GestureDescription gestureDescription = builder
-                .addStroke(new GestureDescription.StrokeDescription(path, 100, 100))
+                .addStroke(new GestureDescription.StrokeDescription(path,
+                        100, 100))
                 .build();
         dispatchGesture(gestureDescription, new AccessibilityService.GestureResultCallback() {
             @Override
@@ -655,7 +668,7 @@ public class AssistService extends AccessibilityService {
                 }
             }
 
-        }, new Handler(Looper.getMainLooper()));
+        }, null);
 
         if (BuildConfig.DEBUG) {
             Log.i(TAG, "TikTok-->>划走广告-->>!!!!");
@@ -694,14 +707,22 @@ public class AssistService extends AccessibilityService {
             case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED:
                 eventText = "TYPE_NOTIFICATION_STATE_CHANGED";
                 break;
-            case AccessibilityEvent.TYPE_TOUCH_EXPLORATION_GESTURE_END:
-                eventText = "TYPE_TOUCH_EXPLORATION_GESTURE_END";
-                break;
             case AccessibilityEvent.TYPE_ANNOUNCEMENT:
                 eventText = "TYPE_ANNOUNCEMENT";
                 break;
             case AccessibilityEvent.TYPE_TOUCH_EXPLORATION_GESTURE_START:
                 eventText = "TYPE_TOUCH_EXPLORATION_GESTURE_START";
+                // 触摸浏览事件开始
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "触摸浏览事件开始-->>");
+                }
+                break;
+            case AccessibilityEvent.TYPE_TOUCH_EXPLORATION_GESTURE_END:
+                eventText = "TYPE_TOUCH_EXPLORATION_GESTURE_END";
+                // 触摸浏览事件结束
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "触摸浏览事件结束-->>");
+                }
                 break;
             case AccessibilityEvent.TYPE_VIEW_HOVER_ENTER:
                 eventText = "TYPE_VIEW_HOVER_ENTER";
@@ -725,8 +746,16 @@ public class AssistService extends AccessibilityService {
             case AccessibilityEvent.TYPE_GESTURE_DETECTION_START:
                 break;
             case AccessibilityEvent.TYPE_TOUCH_INTERACTION_END:
+                // 触摸屏幕事件结束
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "触摸屏幕事件结束-->>");
+                }
                 break;
             case AccessibilityEvent.TYPE_TOUCH_INTERACTION_START:
+                // 触摸屏幕事件开始
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "触摸屏幕事件开始-->>");
+                }
                 break;
             case AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED:
                 break;

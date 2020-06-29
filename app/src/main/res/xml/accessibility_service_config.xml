@@ -5,5 +5,5 @@
     android:accessibilityFlags="flagIncludeNotImportantViews|flagRequestEnhancedWebAccessibility"
     android:canRetrieveWindowContent="true"
     android:canRequestEnhancedWebAccessibility="true"
-    android:canPerformGestures="false"
+    android:canPerformGestures="true"
     android:description="@string/accessibility_service_description" />
