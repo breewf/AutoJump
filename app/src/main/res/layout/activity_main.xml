@@ -298,7 +298,7 @@
                         android:layout_gravity="center_vertical"
                         android:layout_marginTop="4dp"
                         android:lineSpacingExtra="3dp"
-                        android:text="微信阅读公众号文章时自动向上滚动"
+                        android:text="阅读微信公众号文章时间隔10s自动滚动"
                         android:textColor="@color/color_grey_500"
                         android:textSize="12dp"
                         android:visibility="visible"
