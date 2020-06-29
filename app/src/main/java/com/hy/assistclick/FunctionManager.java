@@ -112,7 +112,7 @@ public class FunctionManager {
 
     private void sendWeChatArticleGesture() {
         if (mHandler != null) {
-            mHandler.sendEmptyMessageDelayed(0, 6000);
+            mHandler.sendEmptyMessageDelayed(0, 8000);
         }
     }
 
@@ -137,7 +137,7 @@ public class FunctionManager {
         path.lineTo(x, 200);
         GestureDescription gestureDescription = builder
                 .addStroke(new GestureDescription.StrokeDescription(path,
-                        100, 1000))
+                        100, 2000))
                 .build();
         mAccessibilityService.dispatchGesture(gestureDescription, new AccessibilityService.GestureResultCallback() {
             @Override
