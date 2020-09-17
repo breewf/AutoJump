@@ -40,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
     private Switch mSwitch4;
     private Switch mSwitch5;
     private Switch mSwitch6;
-    private Switch mSwitch7;
     private Switch mSwitchOpenFloat;
 
     private boolean mAccessibilityStart;
@@ -61,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
         mSwitch4 = findViewById(R.id.switch4);
         mSwitch5 = findViewById(R.id.switch5);
         mSwitch6 = findViewById(R.id.switch6);
-        mSwitch7 = findViewById(R.id.switch7);
         mSwitchOpenFloat = findViewById(R.id.btn_open_float);
 
         initSwitchStatus();
@@ -75,7 +73,6 @@ public class MainActivity extends AppCompatActivity {
         mSwitch4.setChecked(Global.APP_TASK_HIDE = PreferManager.getAppTaskHideConfig());
         mSwitch5.setChecked(Global.AUTO_TIK_TOK_JUMP_AD = PreferManager.getAutoTikTokAdConfig());
         mSwitch6.setChecked(Global.AUTO_WE_CHAT_LOGIN = PreferManager.getAutoWeChatLoginConfig());
-        mSwitch7.setChecked(Global.AUTO_WE_CHAT_ARTICLE = PreferManager.getAutoWeChatArticleConfig());
     }
 
     private void initClickListener() {
@@ -147,19 +144,6 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     PreferManager.setAutoWeChatLoginConfig(true);
                     Global.AUTO_WE_CHAT_LOGIN = true;
-                }
-            }
-        });
-
-        mSwitch7.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (PreferManager.getAutoWeChatArticleConfig()) {
-                    PreferManager.setAutoWeChatArticleConfig(false);
-                    Global.AUTO_WE_CHAT_ARTICLE = false;
-                } else {
-                    PreferManager.setAutoWeChatArticleConfig(true);
-                    Global.AUTO_WE_CHAT_ARTICLE = true;
                 }
             }
         });

@@ -145,8 +145,8 @@ public class AssistService extends AccessibilityService {
         mScreenHeight = getScreenHeight(this);
         addWhiteList();
 
-        mFunctionManager = new FunctionManager(this);
-        mFunctionManager.setScreen(mScreenWidth, mScreenHeight);
+//        mFunctionManager = new FunctionManager(this);
+//        mFunctionManager.setScreen(mScreenWidth, mScreenHeight);
 
 //        AccessibilityServiceInfo accessibilityServiceInfo = new AccessibilityServiceInfo();
 //        accessibilityServiceInfo.eventTypes = AccessibilityEvent.TYPES_ALL_MASK;
@@ -211,10 +211,10 @@ public class AssistService extends AccessibilityService {
 //            Log.i(TAG, "ClassName------>>" + mClassName);
 //        }
 
-        if (mFunctionManager != null) {
-            mFunctionManager.setPackageName(mPackageName);
-            mFunctionManager.setClassName(mClassName);
-        }
+//        if (mFunctionManager != null) {
+//            mFunctionManager.setPackageName(mPackageName);
+//            mFunctionManager.setClassName(mClassName);
+//        }
 
         functionAutoJump();
 
@@ -223,10 +223,6 @@ public class AssistService extends AccessibilityService {
         // functionTikTokAutoJumpAd();
 
         functionAutoLoginPcWeChat();
-
-        if (mFunctionManager != null) {
-            mFunctionManager.functionAutoWeChatArticle();
-        }
 
         if (!mPackageNameTemp.equals(mPackageName)) {
             mPackageNameTemp = mPackageName;

@@ -9,8 +9,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
-import com.hy.assistclick.common.Global;
-
 
 /**
  * @author hy
@@ -22,8 +20,6 @@ public class FunctionManager {
     public static final String TAG = "TrackerService";
 
     public static final String WE_CHAT_PACKAGE = "com.tencent.mm";
-    //public static final String WE_CHAT_PACKAGE = "com.huxiu";
-    //public static final String WE_CHAT_ARTICLE_CLASS = "com.huxiu.ui.activity.ArticleDetailActivity";
     public static final String WE_CHAT_ARTICLE_CLASS = "com.tencent.mm.plugin.brandservice.ui.timeline.preload.ui.TmplWebViewTooLMpUI";
 
     private AccessibilityService mAccessibilityService;
@@ -40,8 +36,6 @@ public class FunctionManager {
 
     private int mScreenWidth;
     private int mScreenHeight;
-
-    private boolean mAutoWeChatArticleStart;
 
     public FunctionManager(AccessibilityService accessibilityService) {
         mAccessibilityService = accessibilityService;
@@ -67,65 +61,15 @@ public class FunctionManager {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             if (msg.what == 0) {
-                sendWeChatArticleGesture();
-                startWeChatArticleGestureSwipeUp();
+
             }
         }
     };
 
     /**
-     * 公众号文章辅助阅读
-     */
-    public void functionAutoWeChatArticle() {
-        if (!Global.AUTO_WE_CHAT_ARTICLE) {
-            return;
-        }
-        if (!mPackageName.equals(WE_CHAT_PACKAGE)) {
-            return;
-        }
-        if (!mClassName.equals(WE_CHAT_ARTICLE_CLASS)) {
-            if (mAutoWeChatArticleStart) {
-                removeWeChatArticleGesture();
-                mAutoWeChatArticleStart = false;
-                if (BuildConfig.DEBUG) {
-                    Log.i(TAG, "公众号文章辅助阅读--结束滑动监听-->>");
-                }
-            }
-            return;
-        }
-
-        if (mAutoWeChatArticleStart) {
-            return;
-        }
-
-        if (mAccessibilityService == null) {
-            return;
-        }
-
-        if (BuildConfig.DEBUG) {
-            Log.i(TAG, "公众号文章辅助阅读--开始滑动监听-->>");
-        }
-
-        sendWeChatArticleGesture();
-        mAutoWeChatArticleStart = true;
-    }
-
-    private void sendWeChatArticleGesture() {
-        if (mHandler != null) {
-            mHandler.sendEmptyMessageDelayed(0, 10000);
-        }
-    }
-
-    private void removeWeChatArticleGesture() {
-        if (mHandler != null) {
-            mHandler.removeMessages(0);
-        }
-    }
-
-    /**
      * 向上滑动屏幕
      */
-    private void startWeChatArticleGestureSwipeUp() {
+    private void startGestureSwipeUp() {
         if (mAccessibilityService == null) {
             return;
         }
