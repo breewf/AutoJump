@@ -145,14 +145,14 @@ public class AssistService extends AccessibilityService {
         mScreenHeight = getScreenHeight(this);
         addWhiteList();
 
-//        mFunctionManager = new FunctionManager(this);
-//        mFunctionManager.setScreen(mScreenWidth, mScreenHeight);
+        //mFunctionManager = new FunctionManager(this);
+        //mFunctionManager.setScreen(mScreenWidth, mScreenHeight);
 
-//        AccessibilityServiceInfo accessibilityServiceInfo = new AccessibilityServiceInfo();
-//        accessibilityServiceInfo.eventTypes = AccessibilityEvent.TYPES_ALL_MASK;
-//        accessibilityServiceInfo.feedbackType = AccessibilityServiceInfo.FEEDBACK_SPOKEN;
-//        accessibilityServiceInfo.notificationTimeout = 1000;
-//        setServiceInfo(accessibilityServiceInfo);
+        //AccessibilityServiceInfo accessibilityServiceInfo = new AccessibilityServiceInfo();
+        //accessibilityServiceInfo.eventTypes = AccessibilityEvent.TYPES_ALL_MASK;
+        //accessibilityServiceInfo.feedbackType = AccessibilityServiceInfo.FEEDBACK_SPOKEN;
+        //accessibilityServiceInfo.notificationTimeout = 1000;
+        //setServiceInfo(accessibilityServiceInfo);
     }
 
     private void addWhiteList() {
@@ -206,15 +206,15 @@ public class AssistService extends AccessibilityService {
 
         // checkEvent(event);
 
-//        if (BuildConfig.DEBUG) {
-//            Log.i(TAG, "PackageName-->>" + mPackageName);
-//            Log.i(TAG, "ClassName------>>" + mClassName);
-//        }
+        //if (BuildConfig.DEBUG) {
+        //    Log.i(TAG, "PackageName-->>" + mPackageName);
+        //    Log.i(TAG, "ClassName------>>" + mClassName);
+        //}
 
-//        if (mFunctionManager != null) {
-//            mFunctionManager.setPackageName(mPackageName);
-//            mFunctionManager.setClassName(mClassName);
-//        }
+        //if (mFunctionManager != null) {
+        //    mFunctionManager.setPackageName(mPackageName);
+        //    mFunctionManager.setClassName(mClassName);
+        //}
 
         functionAutoJump();
 
@@ -281,20 +281,20 @@ public class AssistService extends AccessibilityService {
             if (!TextUtils.isEmpty(childNodeInfo.getText())) {
                 textContent = childNodeInfo.getText().toString();
             }
-//            if (BuildConfig.DEBUG) {
-//                Log.i(TAG, "NodeInfo: " + i + " "
-//                        + "className:" + className + " : "
-//                        + childNodeInfo.getContentDescription() + " : "
-//                        + textContent);
-//            }
-
-//            if (!TextUtils.isEmpty(textContent)
-//                    && textContent.contains(ANT_FOREST_TITLE)) {
-//                mAntForest = true;
-//                if (BuildConfig.DEBUG) {
-//                    Log.i(TAG, "蚂蚁森林-->>发现蚂蚁森林!!!!");
-//                }
-//            }
+            //if (BuildConfig.DEBUG) {
+            //    Log.i(TAG, "NodeInfo: " + i + " "
+            //            + "className:" + className + " : "
+            //            + childNodeInfo.getContentDescription() + " : "
+            //            + textContent);
+            //}
+            //
+            //if (!TextUtils.isEmpty(textContent)
+            //        && textContent.contains(ANT_FOREST_TITLE)) {
+            //    mAntForest = true;
+            //    if (BuildConfig.DEBUG) {
+            //        Log.i(TAG, "蚂蚁森林-->>发现蚂蚁森林!!!!");
+            //    }
+            //}
 
             if ("com.uc.webview.export.WebView".equals(className)) {
                 findAntPowerButton(childNodeInfo);
@@ -331,9 +331,9 @@ public class AssistService extends AccessibilityService {
                 textContent = childNodeInfo.getText().toString();
             }
 
-//            boolean isPower = "android.widget.Button".equals(className)
-//                    && !TextUtils.isEmpty(textContent)
-//                    && (textContent.contains("收集能量") || textContent.contains("绿色能量"));
+            //boolean isPower = "android.widget.Button".equals(className)
+            //        && !TextUtils.isEmpty(textContent)
+            //        && (textContent.contains("收集能量") || textContent.contains("绿色能量"));
             boolean isPower = "android.widget.Button".equals(className)
                     && !TextUtils.isEmpty(textContent)
                     && textContent.contains("收集能量");
@@ -343,10 +343,10 @@ public class AssistService extends AccessibilityService {
                     Log.i(TAG, "蚂蚁森林-->>收取一个能量-->>" + textContent);
                 }
 
-//                AccessibilityNodeInfo parentNodeInfo = childNodeInfo.getParent();
-//                if (parentNodeInfo != null) {
-//                    parentNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-//                }
+                //AccessibilityNodeInfo parentNodeInfo = childNodeInfo.getParent();
+                //if (parentNodeInfo != null) {
+                //    parentNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                //}
 
                 Toast.makeText(this, "收取一个能量", Toast.LENGTH_SHORT).show();
             }
@@ -433,12 +433,12 @@ public class AssistService extends AccessibilityService {
             if (!TextUtils.isEmpty(childNodeInfo.getText())) {
                 textContent = childNodeInfo.getText().toString();
             }
-//            if (BuildConfig.DEBUG) {
-//                Log.i(TAG, "NodeInfo: " + i + " "
-//                        + "className:" + className + " : "
-//                        + childNodeInfo.getContentDescription() + " : "
-//                        + textContent);
-//            }
+            //if (BuildConfig.DEBUG) {
+            //    Log.i(TAG, "NodeInfo: " + i + " "
+            //            + "className:" + className + " : "
+            //            + childNodeInfo.getContentDescription() + " : "
+            //            + textContent);
+            //}
 
             if (!TextUtils.isEmpty(textContent)
                     && textContent.contains(JUMP)) {
@@ -536,12 +536,12 @@ public class AssistService extends AccessibilityService {
             if (!TextUtils.isEmpty(childNodeInfo.getText())) {
                 textContent = childNodeInfo.getText().toString();
             }
-//            if (BuildConfig.DEBUG) {
-//                Log.i(TAG, "TikTok:NodeInfo: " + i + " "
-//                        + "className:" + className + " : "
-//                        + childNodeInfo.getContentDescription() + " : "
-//                        + textContent);
-//            }
+            //if (BuildConfig.DEBUG) {
+            //    Log.i(TAG, "TikTok:NodeInfo: " + i + " "
+            //            + "className:" + className + " : "
+            //            + childNodeInfo.getContentDescription() + " : "
+            //            + textContent);
+            //}
 
             boolean check = !TextUtils.isEmpty(textContent)
                     && (textContent.contains("[t]") || textContent.contains("抖音小游戏"));
@@ -610,12 +610,12 @@ public class AssistService extends AccessibilityService {
             if (!TextUtils.isEmpty(childNodeInfo.getText())) {
                 textContent = childNodeInfo.getText().toString();
             }
-//            if (BuildConfig.DEBUG) {
-//                Log.i(TAG, "TikTok:NodeInfo: " + i + " "
-//                        + "className:" + className + " : "
-//                        + childNodeInfo.getContentDescription() + " : "
-//                        + textContent);
-//            }
+            //if (BuildConfig.DEBUG) {
+            //    Log.i(TAG, "TikTok:NodeInfo: " + i + " "
+            //            + "className:" + className + " : "
+            //            + childNodeInfo.getContentDescription() + " : "
+            //            + textContent);
+            //}
 
             boolean check = !TextUtils.isEmpty(textContent)
                     && textContent.equals(LOGIN);
@@ -857,7 +857,7 @@ public class AssistService extends AccessibilityService {
      * 执行ADB命令：input tap 125 340
      */
     private void execCmd(int x, int y) {
-//        String[] order = {"input", "tap", " ", x + "", y + ""};
+        //String[] order = {"input", "tap", " ", x + "", y + ""};
         String order = "input" + " tap" + " " + x + " " + y;
         try {
             OutputStream os = Runtime.getRuntime().exec("su").getOutputStream();
