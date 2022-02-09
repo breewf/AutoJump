@@ -37,4 +37,9 @@ public class Global {
      */
     public static boolean AUTO_WE_CHAT_LOGIN;
 
+    /**
+     * 淘宝结算下单
+     */
+    public static boolean AUTO_TAO_BAO;
+
 }

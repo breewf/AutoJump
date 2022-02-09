@@ -191,4 +191,19 @@ public class PreferManager {
         edit.putBoolean(AUTO_WE_CHAT_ARTICLE_CONFIG, isOpen).apply();
     }
 
+    /**
+     * ================================================
+     * 淘宝开关
+     * ================================================
+     */
+    public static final String AUTO_TAO_BAO_CONFIG = "AUTO_TAO_BAO_CONFIG";
+
+    public static boolean getAutoTaoBaoConfig() {
+        return sp.getBoolean(AUTO_TAO_BAO_CONFIG, false);
+    }
+
+    public static void setAutoTaoBaoConfig(boolean isOpen) {
+        edit.putBoolean(AUTO_TAO_BAO_CONFIG, isOpen).apply();
+    }
+
 }

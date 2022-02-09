@@ -24,6 +24,7 @@ import com.hy.assistclick.event.ActivityChangedEvent;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -55,6 +56,7 @@ public class AssistService extends AccessibilityService {
 
     public static final String WEI_XIN_PACKAGE = "com.tencent.mm";
     public static final String QQ_PACKAGE = "com.tencent.mobileqq";
+    public static final String TAO_BAO = "com.taobao.taobao";
 
     public static final String A_LI_PAY_PACKAGE = "com.eg.android.AlipayGphone";
     public static final String A_LI_PAY_ANT_FOREST_CLASS = "com.alipay.mobile.nebulax.integration.mpaas.activity.NebulaActivity";
@@ -64,6 +66,9 @@ public class AssistService extends AccessibilityService {
     public static final String TIK_TOK_CLASS = "main.MainActivity";
 
     public static final String WEI_XIN_PC_LOGIN_CLASS = "com.tencent.mm.plugin.webwx.ui.ExtDeviceWXLoginUI";
+
+    public static final String TAO_BAO_CLASS_MAIN = "com.taobao.tao.TBMainActivity";
+    public static final String TAO_BAO_CLASS_PURCHASE = "com.taobao.android.purchase.TBPurchaseActivity";
 
     private int mScreenWidth;
     private int mScreenHeight;
@@ -223,6 +228,8 @@ public class AssistService extends AccessibilityService {
         // functionTikTokAutoJumpAd();
 
         functionAutoLoginPcWeChat();
+
+        functionAutoTaoBao();
 
         if (!mPackageNameTemp.equals(mPackageName)) {
             mPackageNameTemp = mPackageName;
@@ -633,6 +640,85 @@ public class AssistService extends AccessibilityService {
     }
 
     /**
+     * 功能--淘宝
+     */
+    private void functionAutoTaoBao() {
+        if (!Global.AUTO_TAO_BAO) {
+            return;
+        }
+        if (!mPackageName.equals(TAO_BAO)) {
+            return;
+        }
+        boolean isTargetPage = mClassName.equals(TAO_BAO_CLASS_MAIN) ||
+                mClassName.equals(TAO_BAO_CLASS_PURCHASE);
+        if (!isTargetPage) {
+            return;
+        }
+
+        if (BuildConfig.DEBUG) {
+            Log.i(TAG, "淘宝页面-->>");
+        }
+
+        // 开始检测
+        AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
+        checkAccessibilityNodeInfoForAutoTaoBao(nodeInfo);
+    }
+
+    /**
+     * 淘宝
+     */
+    public void checkAccessibilityNodeInfoForAutoTaoBao(AccessibilityNodeInfo nodeInfo) {
+        if (nodeInfo == null) {
+            return;
+        }
+        if (nodeInfo.getChildCount() == 0) {
+            return;
+        }
+
+        int size = nodeInfo.getChildCount();
+        for (int i = 0; i < size; i++) {
+            AccessibilityNodeInfo childNodeInfo = nodeInfo.getChild(i);
+            if (childNodeInfo == null) {
+                continue;
+            }
+            String className = "";
+            if (!TextUtils.isEmpty(childNodeInfo.getClassName())) {
+                className = childNodeInfo.getClassName().toString();
+            }
+            String textContent = "";
+            if (!TextUtils.isEmpty(childNodeInfo.getText())) {
+                textContent = childNodeInfo.getText().toString();
+            }
+            //if (BuildConfig.DEBUG) {
+            //    Log.i(TAG, "TikTok:NodeInfo: " + i + " "
+            //            + "className:" + className + " : "
+            //            + childNodeInfo.getContentDescription() + " : "
+            //            + textContent);
+            //}
+
+            boolean check = !TextUtils.isEmpty(textContent)
+                    && textContent.equals("结算");
+            boolean check2 = !TextUtils.isEmpty(textContent)
+                    && textContent.equals("提交订单");
+            if (check || check2) {
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "淘宝页面--点击---->>" + textContent);
+                }
+                //childNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                if (check) {
+                    execShellCmd2(942, 1927);
+                }
+                if (check2) {
+                    execShellCmd2(924, 2060);
+                }
+                break;
+            } else {
+                checkAccessibilityNodeInfoForAutoTaoBao(childNodeInfo);
+            }
+        }
+    }
+
+    /**
      * 向上滑动屏幕
      */
     private void gestureSwipeUp() {
@@ -871,6 +957,45 @@ public class AssistService extends AccessibilityService {
             if (BuildConfig.DEBUG) {
                 Log.i(TAG, "检测APP-->>执行ADB命令--Exception!!!!");
             }
+        }
+    }
+
+    /**
+     * 执行shell命令
+     */
+    private void execShellCmd2(int x, int y) {
+        try {
+            String order = "input" + " tap" + " " + x + " " + y;
+            Process process = Runtime.getRuntime().exec("su");
+            OutputStream outputStream = process.getOutputStream();
+            DataOutputStream dataOutputStream = new DataOutputStream(
+                    outputStream);
+            dataOutputStream.writeBytes(order);
+            dataOutputStream.flush();
+            dataOutputStream.close();
+            outputStream.close();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    }
+
+    /**
+     * 执行shell命令
+     *
+     * @param cmd
+     */
+    private void execShellCmd(String cmd) {
+        try {
+            Process process = Runtime.getRuntime().exec("su");
+            OutputStream outputStream = process.getOutputStream();
+            DataOutputStream dataOutputStream = new DataOutputStream(
+                    outputStream);
+            dataOutputStream.writeBytes(cmd);
+            dataOutputStream.flush();
+            dataOutputStream.close();
+            outputStream.close();
+        } catch (Throwable t) {
+            t.printStackTrace();
         }
     }
 
