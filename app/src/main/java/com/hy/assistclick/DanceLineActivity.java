@@ -7,10 +7,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.hy.assistclick.danceline.DanceLine;
+import com.hy.assistclick.danceline.DanceLineListAdapter;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * @author hy
@@ -20,8 +26,9 @@ import androidx.appcompat.app.AppCompatActivity;
 public class DanceLineActivity extends AppCompatActivity {
 
     private TextView tvClick;
+    private RecyclerView recyclerView;
 
-    private AssistService service;
+    private DanceLineListAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +41,11 @@ public class DanceLineActivity extends AppCompatActivity {
         }
 
         tvClick = findViewById(R.id.tv_click);
+        recyclerView = findViewById(R.id.rv_dance_line);
+
+        List<DanceLine> dataList = buildDanceLineData();
+        adapter = new DanceLineListAdapter(dataList);
+        recyclerView.setAdapter(adapter);
 
         tvClick.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -47,12 +59,31 @@ public class DanceLineActivity extends AppCompatActivity {
             }
         });
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                autoClick();
-            }
-        }, 1000);
+        // new Handler().postDelayed(new Runnable() {
+        //     @Override
+        //     public void run() {
+        //         autoClick();
+        //     }
+        // }, 1000);
+    }
+
+    private List<DanceLine> buildDanceLineData() {
+        List<DanceLine> dataList = new ArrayList<>();
+        DanceLine line1 = new DanceLine();
+        line1.setName("春天");
+        dataList.add(line1);
+
+        DanceLine line2 = new DanceLine();
+        line2.setName("钢琴");
+        dataList.add(line2);
+
+        int i = 30;
+        for (int i1 = 0; i1 < i; i1++) {
+            DanceLine line = new DanceLine();
+            line.setName("name" + i1);
+            dataList.add(line);
+        }
+        return dataList;
     }
 
     public void autoClick() {
