@@ -103,21 +103,6 @@ public class PreferManager {
 
     /**
      * ================================================
-     * 蚂蚁森林自动收取能量开关
-     * ================================================
-     */
-    public static final String AUTO_GET_POWER_CONFIG = "AUTO_GET_POWER_CONFIG";
-
-    public static boolean getAutoGetPowerConfig() {
-        return sp.getBoolean(AUTO_GET_POWER_CONFIG, false);
-    }
-
-    public static void setAutoGetPowerConfig(boolean isOpen) {
-        edit.putBoolean(AUTO_JUMP_CONFIG, isOpen).apply();
-    }
-
-    /**
-     * ================================================
      * 多任务隐藏开关
      * ================================================
      */
@@ -174,21 +159,6 @@ public class PreferManager {
 
     public static void setAutoWeChatLoginConfig(boolean isOpen) {
         edit.putBoolean(AUTO_WE_CHAT_LOGIN_CONFIG, isOpen).apply();
-    }
-
-    /**
-     * ================================================
-     * 公众号文章辅助阅读开关
-     * ================================================
-     */
-    public static final String AUTO_WE_CHAT_ARTICLE_CONFIG = "AUTO_WE_CHAT_ARTICLE_CONFIG";
-
-    public static boolean getAutoWeChatArticleConfig() {
-        return sp.getBoolean(AUTO_WE_CHAT_ARTICLE_CONFIG, false);
-    }
-
-    public static void setAutoWeChatArticleConfig(boolean isOpen) {
-        edit.putBoolean(AUTO_WE_CHAT_ARTICLE_CONFIG, isOpen).apply();
     }
 
     /**

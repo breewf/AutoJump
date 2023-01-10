@@ -8,6 +8,8 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/layout/activity_dance_line.xml" value="0.346875" />
+        <entry key="app/src/main/res/layout/activity_help.xml" value="0.34014300306435136" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.335" />
       </map>
     </option>

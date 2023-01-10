@@ -13,11 +13,6 @@ public class Global {
     public static boolean AUTO_JUMP;
 
     /**
-     * 自动收取能量开关
-     */
-    public static boolean AUTO_GET_POWER;
-
-    /**
      * 多任务隐藏开关
      */
     public static boolean APP_TASK_HIDE;

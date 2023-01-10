@@ -2,31 +2,25 @@ package com.hy.assistclick;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.GestureDescription;
-import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Path;
-import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.MotionEvent;
+import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
-import android.widget.Toast;
 
 import com.hy.assistclick.common.Global;
 import com.hy.assistclick.event.ActivityChangedEvent;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimerTask;
@@ -58,10 +52,6 @@ public class AssistService extends AccessibilityService {
     public static final String QQ_PACKAGE = "com.tencent.mobileqq";
     public static final String TAO_BAO = "com.taobao.taobao";
 
-    public static final String A_LI_PAY_PACKAGE = "com.eg.android.AlipayGphone";
-    public static final String A_LI_PAY_ANT_FOREST_CLASS = "com.alipay.mobile.nebulax.integration.mpaas.activity.NebulaActivity";
-    public static final String ANT_FOREST_TITLE = "蚂蚁森林";
-
     public static final String TIK_TOK_PACKAGE = "com.ss.android.ugc.aweme";
     public static final String TIK_TOK_CLASS = "main.MainActivity";
 
@@ -79,6 +69,7 @@ public class AssistService extends AccessibilityService {
     private final static int TIMER_TASK_DELAY_1000 = 1000;
     private final static int TIMER_TASK_1000 = 1000;
 
+    private static AssistService mInstance;
     private ScheduledExecutorService mScheduledExecutorService;
     private TimerTask mTimerTask;
 
@@ -108,11 +99,6 @@ public class AssistService extends AccessibilityService {
      * 是否已经自动跳过
      */
     private boolean mAutoJump;
-
-    /**
-     * 是否是蚂蚁森林页面
-     */
-    private boolean mAntForest;
 
     /**
      * 是否忽略抖音主页面划走广告
@@ -146,18 +132,17 @@ public class AssistService extends AccessibilityService {
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
+        mInstance = this;
         mScreenWidth = getScreenWidth(this);
         mScreenHeight = getScreenHeight(this);
         addWhiteList();
 
         //mFunctionManager = new FunctionManager(this);
         //mFunctionManager.setScreen(mScreenWidth, mScreenHeight);
+    }
 
-        //AccessibilityServiceInfo accessibilityServiceInfo = new AccessibilityServiceInfo();
-        //accessibilityServiceInfo.eventTypes = AccessibilityEvent.TYPES_ALL_MASK;
-        //accessibilityServiceInfo.feedbackType = AccessibilityServiceInfo.FEEDBACK_SPOKEN;
-        //accessibilityServiceInfo.notificationTimeout = 1000;
-        //setServiceInfo(accessibilityServiceInfo);
+    public static AssistService getInstance() {
+        return mInstance;
     }
 
     private void addWhiteList() {
@@ -172,9 +157,6 @@ public class AssistService extends AccessibilityService {
         }
         if (!mPackageWhiteList.contains(QQ_PACKAGE)) {
             mPackageWhiteList.add(QQ_PACKAGE);
-        }
-        if (!mPackageWhiteList.contains(A_LI_PAY_PACKAGE)) {
-            mPackageWhiteList.add(A_LI_PAY_PACKAGE);
         }
     }
 
@@ -223,141 +205,14 @@ public class AssistService extends AccessibilityService {
 
         functionAutoJump();
 
-        // functionAutoGetAntPower();
-
         // functionTikTokAutoJumpAd();
 
         functionAutoLoginPcWeChat();
 
-        functionAutoTaoBao();
+        // functionAutoTaoBao();
 
         if (!mPackageNameTemp.equals(mPackageName)) {
             mPackageNameTemp = mPackageName;
-        }
-    }
-
-    /**
-     * 功能--蚂蚁森林，自动收取能量
-     */
-    private void functionAutoGetAntPower() {
-        if (!Global.AUTO_GET_POWER) {
-            return;
-        }
-        if (!mPackageName.equals(A_LI_PAY_PACKAGE)) {
-            // 不是支付宝
-            mAntForest = false;
-            return;
-        }
-        if (!mClassName.contains(A_LI_PAY_ANT_FOREST_CLASS)) {
-            // 不是蚂蚁森林所在页面
-            mAntForest = false;
-            return;
-        }
-
-        if (BuildConfig.DEBUG) {
-            Log.i(TAG, "蚂蚁森林-->>发现蚂蚁森林页面!!!!");
-        }
-
-        // 开始检测
-        AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
-        checkAccessibilityNodeInfoForGetPower(nodeInfo);
-    }
-
-    /**
-     * 蚂蚁森林收能量
-     */
-    public void checkAccessibilityNodeInfoForGetPower(AccessibilityNodeInfo nodeInfo) {
-        if (nodeInfo == null) {
-            return;
-        }
-        if (nodeInfo.getChildCount() == 0) {
-            return;
-        }
-
-        int size = nodeInfo.getChildCount();
-        for (int i = 0; i < size; i++) {
-            AccessibilityNodeInfo childNodeInfo = nodeInfo.getChild(i);
-            if (childNodeInfo == null) {
-                continue;
-            }
-            String className = "";
-            if (!TextUtils.isEmpty(childNodeInfo.getClassName())) {
-                className = childNodeInfo.getClassName().toString();
-            }
-            String textContent = "";
-            if (!TextUtils.isEmpty(childNodeInfo.getText())) {
-                textContent = childNodeInfo.getText().toString();
-            }
-            //if (BuildConfig.DEBUG) {
-            //    Log.i(TAG, "NodeInfo: " + i + " "
-            //            + "className:" + className + " : "
-            //            + childNodeInfo.getContentDescription() + " : "
-            //            + textContent);
-            //}
-            //
-            //if (!TextUtils.isEmpty(textContent)
-            //        && textContent.contains(ANT_FOREST_TITLE)) {
-            //    mAntForest = true;
-            //    if (BuildConfig.DEBUG) {
-            //        Log.i(TAG, "蚂蚁森林-->>发现蚂蚁森林!!!!");
-            //    }
-            //}
-
-            if ("com.uc.webview.export.WebView".equals(className)) {
-                findAntPowerButton(childNodeInfo);
-                if (BuildConfig.DEBUG) {
-                    Log.i(TAG, "蚂蚁森林-->>发现蚂蚁森林WebView-->>ChildCount:" + childNodeInfo.getChildCount());
-                }
-                break;
-            }
-
-            checkAccessibilityNodeInfoForGetPower(childNodeInfo);
-        }
-    }
-
-    private void findAntPowerButton(AccessibilityNodeInfo nodeInfo) {
-        if (nodeInfo == null) {
-            return;
-        }
-        if (nodeInfo.getChildCount() == 0) {
-            return;
-        }
-
-        int size = nodeInfo.getChildCount();
-        for (int i = 0; i < size; i++) {
-            AccessibilityNodeInfo childNodeInfo = nodeInfo.getChild(i);
-            if (childNodeInfo == null) {
-                continue;
-            }
-            String className = "";
-            if (!TextUtils.isEmpty(childNodeInfo.getClassName())) {
-                className = childNodeInfo.getClassName().toString();
-            }
-            String textContent = "";
-            if (!TextUtils.isEmpty(childNodeInfo.getText())) {
-                textContent = childNodeInfo.getText().toString();
-            }
-
-            //boolean isPower = "android.widget.Button".equals(className)
-            //        && !TextUtils.isEmpty(textContent)
-            //        && (textContent.contains("收集能量") || textContent.contains("绿色能量"));
-            boolean isPower = "android.widget.Button".equals(className)
-                    && !TextUtils.isEmpty(textContent)
-                    && textContent.contains("收集能量");
-            if (isPower) {
-                childNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                if (BuildConfig.DEBUG) {
-                    Log.i(TAG, "蚂蚁森林-->>收取一个能量-->>" + textContent);
-                }
-
-                //AccessibilityNodeInfo parentNodeInfo = childNodeInfo.getParent();
-                //if (parentNodeInfo != null) {
-                //    parentNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                //}
-
-                Toast.makeText(this, "收取一个能量", Toast.LENGTH_SHORT).show();
-            }
-            findAntPowerButton(childNodeInfo);
         }
     }
 
@@ -463,12 +318,6 @@ public class AssistService extends AccessibilityService {
                         Log.i(TAG, "检测APP-->>parent--自动跳过!!!!");
                     }
                 }
-
-                //Rect outBounds = new Rect();
-                //childNodeInfo.getBoundsInScreen(outBounds);
-                //simulationClick(outBounds.centerX(), outBounds.centerY());
-                //execCmd(outBounds.centerX(), outBounds.centerY());
-
                 break;
             } else {
                 checkAccessibilityNodeInfoForJump(childNodeInfo);
@@ -706,10 +555,10 @@ public class AssistService extends AccessibilityService {
                 }
                 //childNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
                 if (check) {
-                    execShellCmd2(942, 1927);
+                    dispatchClick(942, 1927);
                 }
                 if (check2) {
-                    execShellCmd2(924, 2060);
+                    dispatchClick(924, 2060);
                 }
                 break;
             } else {
@@ -924,96 +773,14 @@ public class AssistService extends AccessibilityService {
      * @param x x
      * @param y y
      */
-    private void simulationClick(int x, int y) {
-        String[] order = {"input", "tap", " ", x + "", y + ""};
-        try {
-            new ProcessBuilder(order).start();
-            if (BuildConfig.DEBUG) {
-                Log.i(TAG, "检测APP-->>模拟点击!!!!");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            if (BuildConfig.DEBUG) {
-                Log.i(TAG, "检测APP-->>模拟点击--IOException!!!!");
-            }
-        }
-    }
+    public void dispatchClick(int x, int y) {
+        Path path = new Path();
+        path.moveTo(x, y);
+        path.lineTo(x + 1, y);
 
-    /**
-     * 执行ADB命令：input tap 125 340
-     */
-    private void execCmd(int x, int y) {
-        //String[] order = {"input", "tap", " ", x + "", y + ""};
-        String order = "input" + " tap" + " " + x + " " + y;
-        try {
-            OutputStream os = Runtime.getRuntime().exec("su").getOutputStream();
-            os.write(order.getBytes());
-            os.flush();
-            if (BuildConfig.DEBUG) {
-                Log.i(TAG, "检测APP-->>执行ADB命令!!!!");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            if (BuildConfig.DEBUG) {
-                Log.i(TAG, "检测APP-->>执行ADB命令--Exception!!!!");
-            }
-        }
-    }
-
-    /**
-     * 执行shell命令
-     */
-    private void execShellCmd2(int x, int y) {
-        try {
-            String order = "input" + " tap" + " " + x + " " + y;
-            Process process = Runtime.getRuntime().exec("su");
-            OutputStream outputStream = process.getOutputStream();
-            DataOutputStream dataOutputStream = new DataOutputStream(
-                    outputStream);
-            dataOutputStream.writeBytes(order);
-            dataOutputStream.flush();
-            dataOutputStream.close();
-            outputStream.close();
-        } catch (Throwable t) {
-            t.printStackTrace();
-        }
-    }
-
-    /**
-     * 执行shell命令
-     *
-     * @param cmd
-     */
-    private void execShellCmd(String cmd) {
-        try {
-            Process process = Runtime.getRuntime().exec("su");
-            OutputStream outputStream = process.getOutputStream();
-            DataOutputStream dataOutputStream = new DataOutputStream(
-                    outputStream);
-            dataOutputStream.writeBytes(cmd);
-            dataOutputStream.flush();
-            dataOutputStream.close();
-            outputStream.close();
-        } catch (Throwable t) {
-            t.printStackTrace();
-        }
-    }
-
-    /**
-     * 模拟点击
-     * 需要系统签名
-     *
-     * @param x x
-     * @param y y
-     */
-    private void simulationClick2(int x, int y) {
-        try {
-            Instrumentation inst = new Instrumentation();
-            inst.sendPointerSync(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN, x, y, 0));
-            inst.sendPointerSync(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_UP, x, y, 0));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        GestureDescription.Builder builder = new GestureDescription.Builder();
+        builder.addStroke(new GestureDescription.StrokeDescription(path, 0, ViewConfiguration.getTapTimeout()));
+        dispatchGesture(builder.build(), null, null);
     }
 
     /**

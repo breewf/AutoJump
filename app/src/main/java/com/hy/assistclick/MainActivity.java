@@ -7,6 +7,7 @@ import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,12 +37,13 @@ public class MainActivity extends AppCompatActivity {
 
     private Switch mSwitch1;
     private Switch mSwitch2;
-    private Switch mSwitch3;
     private Switch mSwitch4;
     private Switch mSwitch5;
     private Switch mSwitch6;
     private Switch mSwitch7;
     private Switch mSwitchOpenFloat;
+
+    private LinearLayout mLayoutDanceLine;
 
     private boolean mAccessibilityStart;
 
@@ -57,12 +59,12 @@ public class MainActivity extends AppCompatActivity {
         mOpenTipsTv = findViewById(R.id.tv_open_tips);
         mSwitch1 = findViewById(R.id.switch1);
         mSwitch2 = findViewById(R.id.switch2);
-        mSwitch3 = findViewById(R.id.switch3);
         mSwitch4 = findViewById(R.id.switch4);
         mSwitch5 = findViewById(R.id.switch5);
         mSwitch6 = findViewById(R.id.switch6);
         mSwitch7 = findViewById(R.id.switch7);
         mSwitchOpenFloat = findViewById(R.id.btn_open_float);
+        mLayoutDanceLine = findViewById(R.id.layout_dance_line);
 
         initSwitchStatus();
 
@@ -71,7 +73,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void initSwitchStatus() {
         mSwitch2.setChecked(Global.AUTO_JUMP = PreferManager.getAutoJumpConfig());
-        mSwitch3.setChecked(Global.AUTO_GET_POWER = PreferManager.getAutoGetPowerConfig());
         mSwitch4.setChecked(Global.APP_TASK_HIDE = PreferManager.getAppTaskHideConfig());
         mSwitch5.setChecked(Global.AUTO_TIK_TOK_JUMP_AD = PreferManager.getAutoTikTokAdConfig());
         mSwitch6.setChecked(Global.AUTO_WE_CHAT_LOGIN = PreferManager.getAutoWeChatLoginConfig());
@@ -95,19 +96,6 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     PreferManager.setAutoJumpConfig(true);
                     Global.AUTO_JUMP = true;
-                }
-            }
-        });
-
-        mSwitch3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (PreferManager.getAutoGetPowerConfig()) {
-                    PreferManager.setAutoGetPowerConfig(false);
-                    Global.AUTO_GET_POWER = false;
-                } else {
-                    PreferManager.setAutoGetPowerConfig(true);
-                    Global.AUTO_GET_POWER = true;
                 }
             }
         });
@@ -174,6 +162,13 @@ public class MainActivity extends AppCompatActivity {
                 if (checkCanDrawOverlays(true)) {
                     addFloatView();
                 }
+            }
+        });
+
+        mLayoutDanceLine.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, DanceLineActivity.class));
             }
         });
 
