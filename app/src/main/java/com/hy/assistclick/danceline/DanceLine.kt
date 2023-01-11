@@ -9,11 +9,12 @@ import com.hy.assistclick.base.BaseMode
  **/
 class DanceLine : BaseMode() {
 
+    var id: Int = -1
     var name: String? = null
 
     /**
      * 点击数据源
      * 存储时间，单位毫秒
      */
-    var clickDataList: List<Long>? = null
+    var clickDataList: MutableList<Long>? = null
 }

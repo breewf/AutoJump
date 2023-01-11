@@ -10,10 +10,15 @@
       <map>
         <entry key="app/src/main/res/drawable/bg_dance_line.xml" value="0.36006128702757917" />
         <entry key="app/src/main/res/drawable/bg_dance_line_btn.xml" value="0.36006128702757917" />
+        <entry key="app/src/main/res/drawable/bg_track_bottom.xml" value="0.36006128702757917" />
+        <entry key="app/src/main/res/drawable/bg_track_log.xml" value="0.36006128702757917" />
         <entry key="app/src/main/res/layout/activity_dance_line.xml" value="0.346875" />
         <entry key="app/src/main/res/layout/activity_help.xml" value="0.34014300306435136" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.335" />
         <entry key="app/src/main/res/layout/item_list_dance_line.xml" value="0.346875" />
+        <entry key="app/src/main/res/layout/layout_float_dance_line.xml" value="0.346875" />
+        <entry key="app/src/main/res/layout/layout_floating.xml" value="0.34014300306435136" />
+        <entry key="app/src/main/res/layout/layout_track_log_view.xml" value="0.346875" />
         <entry key="app/src/main/res/layout/list_item_track_log_view.xml" value="0.346875" />
       </map>
     </option>

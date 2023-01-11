@@ -20,6 +20,7 @@ import com.hy.assistclick.common.Global;
 import com.hy.assistclick.event.ActivityChangedEvent;
 
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +28,6 @@ import java.util.TimerTask;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
-import de.greenrobot.event.EventBus;
 
 /**
  * @author hy
@@ -136,9 +135,6 @@ public class AssistService extends AccessibilityService {
         mScreenWidth = getScreenWidth(this);
         mScreenHeight = getScreenHeight(this);
         addWhiteList();
-
-        //mFunctionManager = new FunctionManager(this);
-        //mFunctionManager.setScreen(mScreenWidth, mScreenHeight);
     }
 
     public static AssistService getInstance() {
@@ -191,17 +187,12 @@ public class AssistService extends AccessibilityService {
             }
         }
 
+        if (BuildConfig.DEBUG) {
+            Log.i(TAG, "PackageName-->>" + mPackageName);
+            Log.i(TAG, "ClassName------>>" + mClassName);
+        }
+
         // checkEvent(event);
-
-        //if (BuildConfig.DEBUG) {
-        //    Log.i(TAG, "PackageName-->>" + mPackageName);
-        //    Log.i(TAG, "ClassName------>>" + mClassName);
-        //}
-
-        //if (mFunctionManager != null) {
-        //    mFunctionManager.setPackageName(mPackageName);
-        //    mFunctionManager.setClassName(mClassName);
-        //}
 
         functionAutoJump();
 

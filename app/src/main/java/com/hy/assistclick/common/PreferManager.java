@@ -4,6 +4,14 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.hy.assistclick.danceline.DanceLine;
+
+import java.util.List;
+
+import androidx.annotation.NonNull;
+
 
 /**
  * @author hy
@@ -176,4 +184,27 @@ public class PreferManager {
         edit.putBoolean(AUTO_TAO_BAO_CONFIG, isOpen).apply();
     }
 
+    /**
+     * dance line
+     */
+    public static final String DANCE_LINE_DATA = "dance_line_data";
+
+    public static void setDanceLineList(@NonNull List<DanceLine> list) {
+        try {
+            edit.putString(DANCE_LINE_DATA, new Gson().toJson(list)).apply();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static List<DanceLine> getDanceLineList() {
+        try {
+            String json = sp.getString(DANCE_LINE_DATA, "[]");
+            return new Gson().fromJson(json, new TypeToken<List<DanceLine>>() {
+            }.getType());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

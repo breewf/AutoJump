@@ -37,4 +37,10 @@ public class Global {
      */
     public static boolean AUTO_TAO_BAO;
 
+    /**
+     * Dance Line
+     */
+    public static boolean DANCE_LINE;
+    public static boolean DANCE_LINE_RECORD;
+
 }

@@ -42,7 +42,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".DanceLineActivity"
+            android:name=".danceline.DanceLineActivity"
             android:screenOrientation="portrait" />
 
     </application>

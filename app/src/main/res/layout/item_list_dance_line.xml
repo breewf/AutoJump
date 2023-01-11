@@ -9,24 +9,24 @@
     android:background="@drawable/bg_dance_line"
     android:orientation="vertical">
 
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:lineSpacingExtra="3dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:textColor="@color/color_black"
+        android:textSize="16dp"
+        tools:text="name" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp">
-
-        <TextView
-            android:id="@+id/tv_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_weight="1"
-            android:lineSpacingExtra="3dp"
-            android:textColor="@color/color_black"
-            android:textSize="16dp"
-            tools:text="name" />
+        android:padding="10dp">
 
         <TextView
             android:id="@+id/btn_record"
@@ -42,17 +42,30 @@
             android:textSize="14dp" />
 
         <TextView
-            android:id="@+id/btn_run"
+            android:id="@+id/btn_clear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
             android:background="@drawable/bg_dance_line_btn"
             android:paddingStart="16dp"
             android:paddingTop="6dp"
             android:paddingEnd="16dp"
             android:paddingBottom="6dp"
-            android:text="RUN"
+            android:text="清除数据"
+            android:textColor="@color/white"
+            android:textSize="14dp" />
+
+        <TextView
+            android:id="@+id/btn_run"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/bg_dance_line_btn"
+            android:paddingStart="16dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="6dp"
+            android:text="GO RUN"
             android:textColor="@color/white"
             android:textSize="14dp" />
 

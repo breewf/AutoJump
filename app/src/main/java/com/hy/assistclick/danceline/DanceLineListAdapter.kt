@@ -11,6 +11,8 @@ import com.hy.assistclick.base.BaseViewHolder
 import com.hy.assistclick.base.IViewHolder
 import com.hy.assistclick.danceline.DanceLineListAdapter.DanceLineViewHolder
 import com.hy.assistclick.R
+import com.hy.assistclick.common.Global
+import com.hy.assistclick.utils.ObjectUtils
 import com.hy.assistclick.utils.Utils
 
 /**
@@ -43,17 +45,20 @@ class DanceLineListAdapter internal constructor(list: MutableList<DanceLine>?) :
         private var btnRecord: TextView? = null
         private var btnRun: TextView? = null
 
+        var danceLine: DanceLine? = null
+
         init {
             tvName = view.findViewById(R.id.tv_name)
             btnRecord = view.findViewById(R.id.btn_record)
             btnRun = view.findViewById(R.id.btn_run)
 
             btnRecord!!.setOnClickListener {
-                Toast.makeText(activity, "录制", Toast.LENGTH_SHORT).show()
+                Global.DANCE_LINE_RECORD = true
+                (activity as DanceLineActivity).addDanceLineFloatView(danceLine)
             }
 
             btnRun!!.setOnClickListener {
-                Toast.makeText(activity, "run", Toast.LENGTH_SHORT).show()
+                (activity as DanceLineActivity).addDanceLineFloatView(danceLine)
             }
         }
 
@@ -61,7 +66,10 @@ class DanceLineListAdapter internal constructor(list: MutableList<DanceLine>?) :
             if (item == null) {
                 return
             }
-            tvName?.text = item.name
+            danceLine = item
+            val hasData = !ObjectUtils.isEmpty(item.clickDataList)
+            val str = if (hasData) "  [存在录制数据~]" else "  [无数据~]"
+            tvName?.text = item.name + str
         }
     }
 }

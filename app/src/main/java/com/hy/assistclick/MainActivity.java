@@ -14,12 +14,15 @@ import android.widget.Toast;
 
 import com.hy.assistclick.common.Global;
 import com.hy.assistclick.common.PreferManager;
+import com.hy.assistclick.danceline.DanceLineActivity;
 import com.hy.assistclick.event.Actions;
 import com.hy.assistclick.event.Event;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import de.greenrobot.event.EventBus;
 
 /**
  * @author hy
@@ -263,7 +266,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void onEventMainThread(Event event) {
+    @Subscribe
+    public void onEvent(Event event) {
         if (Actions.ACTIONS_CLOSE_FLOAT.equals(event.getAction())) {
             removeFloatView();
         }

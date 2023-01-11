@@ -5,7 +5,6 @@ import android.content.Context;
 import android.graphics.Point;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -15,7 +14,8 @@ import com.hy.assistclick.event.Actions;
 import com.hy.assistclick.event.ActivityChangedEvent;
 import com.hy.assistclick.event.Event;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 /**
  * @author hy
@@ -44,14 +44,11 @@ public class FloatingView extends LinearLayout {
         mTvClassName = findViewById(R.id.tv_class_name);
 
         ImageView ivClose = findViewById(R.id.iv_close);
-        ivClose.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mContext == null) {
-                    return;
-                }
-                EventBus.getDefault().post(new Event(Actions.ACTIONS_CLOSE_FLOAT));
+        ivClose.setOnClickListener(v -> {
+            if (mContext == null) {
+                return;
             }
+            EventBus.getDefault().post(new Event(Actions.ACTIONS_CLOSE_FLOAT));
         });
     }
 
@@ -67,8 +64,11 @@ public class FloatingView extends LinearLayout {
         EventBus.getDefault().unregister(this);
     }
 
-    public void onEventMainThread(ActivityChangedEvent event) {
-        Log.d(TAG, "event:" + event.getPackageName() + ": " + event.getClassName());
+    @Subscribe
+    public void onEvent(ActivityChangedEvent event) {
+        if (BuildConfig.DEBUG) {
+            Log.i(TAG, "event:" + event.getPackageName() + ": " + event.getClassName());
+        }
         String packageName = event.getPackageName(),
                 className = event.getClassName();
 
