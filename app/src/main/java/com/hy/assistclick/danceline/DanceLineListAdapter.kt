@@ -1,6 +1,8 @@
 package com.hy.assistclick.danceline
 
 import android.app.Activity
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -44,6 +46,7 @@ class DanceLineListAdapter internal constructor(list: MutableList<DanceLine>?) :
         private var tvName: TextView? = null
         private var btnRecord: TextView? = null
         private var btnRun: TextView? = null
+        private var btnClear: TextView? = null
 
         var danceLine: DanceLine? = null
 
@@ -51,6 +54,7 @@ class DanceLineListAdapter internal constructor(list: MutableList<DanceLine>?) :
             tvName = view.findViewById(R.id.tv_name)
             btnRecord = view.findViewById(R.id.btn_record)
             btnRun = view.findViewById(R.id.btn_run)
+            btnClear = view.findViewById(R.id.btn_clear)
 
             btnRecord!!.setOnClickListener {
                 Global.DANCE_LINE_RECORD = true
@@ -59,6 +63,16 @@ class DanceLineListAdapter internal constructor(list: MutableList<DanceLine>?) :
 
             btnRun!!.setOnClickListener {
                 (activity as DanceLineActivity).addDanceLineFloatView(danceLine)
+            }
+
+            btnClear!!.setOnClickListener {
+                val builder = androidx.appcompat.app.AlertDialog.Builder(activity)
+                builder.setMessage("确定要清除本关卡数据吗？")
+                builder.setPositiveButton("确定") { _, _ ->
+                    (activity as DanceLineActivity).clearDanceLine(danceLine)
+                }
+                builder.setNegativeButton("取消") { dialog: DialogInterface, _: Int -> dialog.dismiss() }
+                builder.show()
             }
         }
 

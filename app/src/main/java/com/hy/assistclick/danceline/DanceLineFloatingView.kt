@@ -60,7 +60,7 @@ class DanceLineFloatingView(private val mContext: Context, private val closeList
             tvStart?.text = "保存录制数据"
             tvInfo?.visibility = View.VISIBLE
             tvInfo?.text = "录制点击时间：0"
-            (mContext as DanceLineActivity).recordResetData()
+            mContext.recordResetData()
         } else {
             tvTitle?.text = "运行关卡：" + danceLine?.name
             tvInfo?.visibility = View.VISIBLE
@@ -72,21 +72,23 @@ class DanceLineFloatingView(private val mContext: Context, private val closeList
             if (!Global.DANCE_LINE_RECORD) {
                 return@setOnClickListener
             }
-            // 点击了此处，就模拟点击一下屏幕
-            if (AssistService.getInstance() != null) {
-                AssistService.getInstance().dispatchClick(400, 800)
-            }
             // 录制数据
-            (mContext as DanceLineActivity).recordDanceLineData()
+            mContext.recordDanceLineData()
+            if (!mContext.isRecordToRun()) {
+                // 模拟点击一下屏幕
+                if (AssistService.getInstance() != null) {
+                    AssistService.getInstance().dispatchClick(400, 700)
+                }
+            }
         }
 
         tvStart?.setOnClickListener {
             if (Global.DANCE_LINE_RECORD) {
                 // 保存
-                (mContext as DanceLineActivity).saveRecordData()
+                mContext.saveRecordData()
             } else {
                 // 运行
-                (mContext as DanceLineActivity).run()
+                mContext.run()
             }
         }
     }
@@ -103,15 +105,14 @@ class DanceLineFloatingView(private val mContext: Context, private val closeList
             val count = event.bundle.get(Arguments.ARG_INT2)
             tvInfo?.text = "下次运行时间：$nextTime ms\n点击数据总量：$size  已运行数量：$count"
             if (AssistService.getInstance() != null) {
-                AssistService.getInstance().dispatchClick(400, 800)
+                AssistService.getInstance().dispatchClick(400, 700)
             }
         }
 
         if (Actions.ACTIONS_DANCE_LINE_RECORD_SHOW == event.action) {
-            val string = event.bundle.get(Arguments.ARG_STRING) as String
+            val showString = event.bundle.get(Arguments.ARG_STRING) as String
             val spaceTime = event.bundle.get(Arguments.ARG_LONG)
-            val size = event.bundle.get(Arguments.ARG_INT)
-            tvInfo?.text = "$string  数据量：$size\n此次点击距离上次的时间：$spaceTime"
+            tvInfo?.text = "$showString\n此次点击距离上次的时间：$spaceTime"
         }
     }
 

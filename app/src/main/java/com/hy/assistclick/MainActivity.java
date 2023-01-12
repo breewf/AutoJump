@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -83,105 +82,72 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initClickListener() {
-        mSwitch1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startAccessibility();
+        mSwitch1.setOnClickListener(view -> startAccessibility());
+
+        mSwitch2.setOnClickListener(view -> {
+            if (PreferManager.getAutoJumpConfig()) {
+                PreferManager.setAutoJumpConfig(false);
+                Global.AUTO_JUMP = false;
+            } else {
+                PreferManager.setAutoJumpConfig(true);
+                Global.AUTO_JUMP = true;
             }
         });
 
-        mSwitch2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (PreferManager.getAutoJumpConfig()) {
-                    PreferManager.setAutoJumpConfig(false);
-                    Global.AUTO_JUMP = false;
-                } else {
-                    PreferManager.setAutoJumpConfig(true);
-                    Global.AUTO_JUMP = true;
-                }
+        mSwitch4.setOnClickListener(view -> {
+            if (PreferManager.getAppTaskHideConfig()) {
+                PreferManager.setAppTaskHideConfig(false);
+                Global.APP_TASK_HIDE = false;
+            } else {
+                PreferManager.setAppTaskHideConfig(true);
+                Global.APP_TASK_HIDE = true;
             }
         });
 
-        mSwitch4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (PreferManager.getAppTaskHideConfig()) {
-                    PreferManager.setAppTaskHideConfig(false);
-                    Global.APP_TASK_HIDE = false;
-                } else {
-                    PreferManager.setAppTaskHideConfig(true);
-                    Global.APP_TASK_HIDE = true;
-                }
+        mSwitch5.setOnClickListener(view -> {
+            if (PreferManager.getAutoTikTokAdConfig()) {
+                PreferManager.setAutoTikTokAdConfig(false);
+                Global.AUTO_TIK_TOK_JUMP_AD = false;
+            } else {
+                PreferManager.setAutoTikTokAdConfig(true);
+                Global.AUTO_TIK_TOK_JUMP_AD = true;
             }
         });
 
-        mSwitch5.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (PreferManager.getAutoTikTokAdConfig()) {
-                    PreferManager.setAutoTikTokAdConfig(false);
-                    Global.AUTO_TIK_TOK_JUMP_AD = false;
-                } else {
-                    PreferManager.setAutoTikTokAdConfig(true);
-                    Global.AUTO_TIK_TOK_JUMP_AD = true;
-                }
+        mSwitch6.setOnClickListener(view -> {
+            if (PreferManager.getAutoWeChatLoginConfig()) {
+                PreferManager.setAutoWeChatLoginConfig(false);
+                Global.AUTO_WE_CHAT_LOGIN = false;
+            } else {
+                PreferManager.setAutoWeChatLoginConfig(true);
+                Global.AUTO_WE_CHAT_LOGIN = true;
             }
         });
 
-        mSwitch6.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (PreferManager.getAutoWeChatLoginConfig()) {
-                    PreferManager.setAutoWeChatLoginConfig(false);
-                    Global.AUTO_WE_CHAT_LOGIN = false;
-                } else {
-                    PreferManager.setAutoWeChatLoginConfig(true);
-                    Global.AUTO_WE_CHAT_LOGIN = true;
-                }
+        mSwitch7.setOnClickListener(view -> {
+            if (PreferManager.getAutoTaoBaoConfig()) {
+                PreferManager.setAutoTaoBaoConfig(false);
+                Global.AUTO_TAO_BAO = false;
+            } else {
+                PreferManager.setAutoTaoBaoConfig(true);
+                Global.AUTO_TAO_BAO = true;
             }
         });
 
-        mSwitch7.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (PreferManager.getAutoTaoBaoConfig()) {
-                    PreferManager.setAutoTaoBaoConfig(false);
-                    Global.AUTO_TAO_BAO = false;
-                } else {
-                    PreferManager.setAutoTaoBaoConfig(true);
-                    Global.AUTO_TAO_BAO = true;
-                }
+        mSwitchOpenFloat.setOnClickListener(v -> {
+            if (Global.SEE_ACTIVITY) {
+                removeFloatView();
+                return;
+            }
+            if (checkCanDrawOverlays(true)) {
+                addFloatView();
             }
         });
 
-        mSwitchOpenFloat.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (Global.SEE_ACTIVITY) {
-                    removeFloatView();
-                    return;
-                }
-                if (checkCanDrawOverlays(true)) {
-                    addFloatView();
-                }
-            }
-        });
+        mLayoutDanceLine.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, DanceLineActivity.class)));
 
-        mLayoutDanceLine.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, DanceLineActivity.class));
-            }
-        });
-
-        mOpenTipsTv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(MainActivity.this,
-                        "嘻嘻，不指定哪天才能更新呢~", Toast.LENGTH_LONG).show();
-            }
-        });
+        mOpenTipsTv.setOnClickListener(v -> Toast.makeText(MainActivity.this,
+                "嘻嘻，不指定哪天才能更新呢~", Toast.LENGTH_LONG).show());
     }
 
     private void initTrackerWindowManager() {
