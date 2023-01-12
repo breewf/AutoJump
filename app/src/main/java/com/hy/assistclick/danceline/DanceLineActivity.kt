@@ -11,6 +11,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import android.widget.EditText
 import android.widget.Toast
 import com.blankj.utilcode.util.ObjectUtils
 import com.hy.assistclick.R
@@ -33,6 +34,7 @@ open class DanceLineActivity : AppCompatActivity() {
 
     private var tvClick: TextView? = null
     private var recyclerView: RecyclerView? = null
+    private var etTimeMs: EditText? = null
     private var adapter: DanceLineListAdapter? = null
 
     private var danceLineFloatWindowManager: DanceLineFloatWindowManager? = null
@@ -66,6 +68,7 @@ open class DanceLineActivity : AppCompatActivity() {
 
         tvClick = findViewById(R.id.tv_click)
         recyclerView = findViewById(R.id.rv_dance_line)
+        etTimeMs = findViewById(R.id.et_time_ms)
 
         initData()
 
@@ -169,6 +172,10 @@ open class DanceLineActivity : AppCompatActivity() {
 
     open fun getDanceLineData(): DanceLine? {
         return danceLine
+    }
+
+    open fun getEtTimeMs(): Int {
+        return etTimeMs?.text.toString().toInt()
     }
 
     /**
@@ -310,7 +317,7 @@ open class DanceLineActivity : AppCompatActivity() {
 
     open fun delayClick(delayTime: Long) {
         // 执行点击需要耗时，减掉相当于和录制时的时间对齐，容错
-        handler.sendEmptyMessageDelayed(DANCE_CLICK, delayTime - 9)
+        handler.sendEmptyMessageDelayed(DANCE_CLICK, delayTime - getEtTimeMs())
     }
 
     @SuppressLint("HandlerLeak")
@@ -352,7 +359,7 @@ open class DanceLineActivity : AppCompatActivity() {
             recordToRun = false
 
             // 重要，赋值最后一次自动运行点击的时间
-            clickCurrentTimeMillisTemp = System.currentTimeMillis() + 9
+            clickCurrentTimeMillisTemp = System.currentTimeMillis() + getEtTimeMs()
 
             // 震动提醒
             vibrator()
