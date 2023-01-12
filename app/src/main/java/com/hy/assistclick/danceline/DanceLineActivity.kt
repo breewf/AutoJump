@@ -260,6 +260,11 @@ open class DanceLineActivity : AppCompatActivity() {
         if (danceLine == null || ObjectUtils.isEmpty(clickDataRecord)) {
             return
         }
+        if (clickDataRecord!!.size > 1) {
+            // 删除最后2次点击，因为一般最后点击是出错的。同样，当关卡通关后要多点2次
+            clickDataRecord!!.removeAt(clickDataRecord!!.size - 1)
+            clickDataRecord!!.removeAt(clickDataRecord!!.size - 1)
+        }
         danceLine!!.clickDataList = clickDataRecord
 
         val dataList: MutableList<DanceLine> = PreferManager.getDanceLineList() ?: return
@@ -304,8 +309,8 @@ open class DanceLineActivity : AppCompatActivity() {
     }
 
     open fun delayClick(delayTime: Long) {
-        // 10ms 是执行点击的耗时，减掉相当于和录制时的时间对齐
-        handler.sendEmptyMessageDelayed(DANCE_CLICK, delayTime - 10)
+        // 执行点击需要耗时，减掉相当于和录制时的时间对齐，容错
+        handler.sendEmptyMessageDelayed(DANCE_CLICK, delayTime - 9)
     }
 
     @SuppressLint("HandlerLeak")
@@ -347,7 +352,7 @@ open class DanceLineActivity : AppCompatActivity() {
             recordToRun = false
 
             // 重要，赋值最后一次自动运行点击的时间
-            clickCurrentTimeMillisTemp = System.currentTimeMillis() + 10
+            clickCurrentTimeMillisTemp = System.currentTimeMillis() + 9
 
             // 震动提醒
             vibrator()

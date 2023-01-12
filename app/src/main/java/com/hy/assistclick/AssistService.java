@@ -776,11 +776,11 @@ public class AssistService extends AccessibilityService {
     public void dispatchClick(int x, int y, GestureResultCallback callback) {
         Path path = new Path();
         path.moveTo(x, y);
-        path.lineTo(x + 1, y);
+        path.lineTo(x, y);
 
         GestureDescription.Builder builder = new GestureDescription.Builder();
         // builder.addStroke(new GestureDescription.StrokeDescription(path, 0, ViewConfiguration.getTapTimeout()));
-        builder.addStroke(new GestureDescription.StrokeDescription(path, 0, 10));
+        builder.addStroke(new GestureDescription.StrokeDescription(path, 0, 1));
         dispatchGesture(builder.build(), callback, null);
     }
 
