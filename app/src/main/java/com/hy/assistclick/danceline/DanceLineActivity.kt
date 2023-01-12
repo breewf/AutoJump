@@ -189,7 +189,7 @@ open class DanceLineActivity : AppCompatActivity() {
     /**
      * 点击记录数据，点击时触发
      */
-    open fun recordDanceLineData() {
+    open fun recordDanceLineData(currentTimeMillis: Long) {
         if (danceLine == null) {
             return
         }
@@ -216,7 +216,7 @@ open class DanceLineActivity : AppCompatActivity() {
             }
         }
 
-        clickCurrentTimeMillis = System.currentTimeMillis()
+        clickCurrentTimeMillis = currentTimeMillis
         if (recordClickCount == 0) {
             clickCurrentTimeMillisTemp = clickCurrentTimeMillis
         }
@@ -304,7 +304,8 @@ open class DanceLineActivity : AppCompatActivity() {
     }
 
     open fun delayClick(delayTime: Long) {
-        handler.sendEmptyMessageDelayed(DANCE_CLICK, delayTime)
+        // 10ms 是执行点击的耗时，减掉相当于和录制时的时间对齐
+        handler.sendEmptyMessageDelayed(DANCE_CLICK, delayTime - 10)
     }
 
     @SuppressLint("HandlerLeak")
@@ -346,7 +347,7 @@ open class DanceLineActivity : AppCompatActivity() {
             recordToRun = false
 
             // 重要，赋值最后一次自动运行点击的时间
-            clickCurrentTimeMillisTemp = System.currentTimeMillis()
+            clickCurrentTimeMillisTemp = System.currentTimeMillis() + 10
 
             // 震动提醒
             vibrator()
@@ -393,6 +394,12 @@ open class DanceLineActivity : AppCompatActivity() {
         }
         danceLineFloatWindowManager!!.addView()
         Global.DANCE_LINE = true
+
+        // 回到桌面
+        val intent = Intent(Intent.ACTION_MAIN)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        intent.addCategory(Intent.CATEGORY_HOME)
+        startActivity(intent)
     }
 
     /**

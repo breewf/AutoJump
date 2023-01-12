@@ -11,7 +11,6 @@ import android.graphics.Path;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -765,13 +764,24 @@ public class AssistService extends AccessibilityService {
      * @param y y
      */
     public void dispatchClick(int x, int y) {
+        dispatchClick(x, y, null);
+    }
+
+    /**
+     * 模拟点击
+     *
+     * @param x x
+     * @param y y
+     */
+    public void dispatchClick(int x, int y, GestureResultCallback callback) {
         Path path = new Path();
         path.moveTo(x, y);
         path.lineTo(x + 1, y);
 
         GestureDescription.Builder builder = new GestureDescription.Builder();
-        builder.addStroke(new GestureDescription.StrokeDescription(path, 0, ViewConfiguration.getTapTimeout()));
-        dispatchGesture(builder.build(), null, null);
+        // builder.addStroke(new GestureDescription.StrokeDescription(path, 0, ViewConfiguration.getTapTimeout()));
+        builder.addStroke(new GestureDescription.StrokeDescription(path, 0, 10));
+        dispatchGesture(builder.build(), callback, null);
     }
 
     /**

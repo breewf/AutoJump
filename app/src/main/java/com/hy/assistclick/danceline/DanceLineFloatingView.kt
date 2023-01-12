@@ -1,5 +1,7 @@
 package com.hy.assistclick.danceline
 
+import android.accessibilityservice.AccessibilityService
+import android.accessibilityservice.GestureDescription
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Point
@@ -72,12 +74,16 @@ class DanceLineFloatingView(private val mContext: Context, private val closeList
             if (!Global.DANCE_LINE_RECORD) {
                 return@setOnClickListener
             }
-            // 录制数据
-            mContext.recordDanceLineData()
             if (!mContext.isRecordToRun()) {
                 // 模拟点击一下屏幕
                 if (AssistService.getInstance() != null) {
-                    AssistService.getInstance().dispatchClick(400, 700)
+                    AssistService.getInstance().dispatchClick(400, 700, object : AccessibilityService.GestureResultCallback() {
+                        override fun onCompleted(gestureDescription: GestureDescription?) {
+                            super.onCompleted(gestureDescription)
+                            // 录制数据
+                            mContext.recordDanceLineData(System.currentTimeMillis())
+                        }
+                    })
                 }
             }
         }
