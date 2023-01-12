@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.hy.assistclick.base.BaseViewHolder
 import com.hy.assistclick.base.IViewHolder
@@ -82,8 +83,14 @@ class DanceLineListAdapter internal constructor(list: MutableList<DanceLine>?) :
             }
             danceLine = item
             val hasData = !ObjectUtils.isEmpty(item.clickDataList)
-            val str = if (hasData) "  [存在录制数据~]" else "  [无数据~]"
+            val str = if (hasData) "  [存在数据" + " size=" + item.clickDataList!!.size + "]" else "  [无数据~]"
             tvName?.text = item.name + str
+
+            if (hasData) {
+                tvName?.setTextColor(ContextCompat.getColor(activity, R.color.colorAccent))
+            } else {
+                tvName?.setTextColor(ContextCompat.getColor(activity, R.color.gray8))
+            }
         }
     }
 }
